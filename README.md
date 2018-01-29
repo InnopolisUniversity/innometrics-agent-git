@@ -37,5 +37,6 @@ Go to:
 
 ## Test:
 pip install coverage==3.6
+
 coverage run manage.py test commit -v 2
 
