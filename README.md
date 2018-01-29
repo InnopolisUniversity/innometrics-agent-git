@@ -34,3 +34,8 @@ Go to:
 1. http://127.0.0.1:8000/commit/githubuser/
 2. Enter Github ID of the user 
 3. Commit data is in database. (Measurements,Activity)
+
+## Test:
+pip install coverage==3.6
+coverage run manage.py test commit -v 2
+
