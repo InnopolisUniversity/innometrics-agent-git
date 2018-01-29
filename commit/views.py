@@ -129,7 +129,7 @@ def search(github):
                 pr = Project.objects.get(name=repo['name'])
                 UserParticipation(user=u, project=pr).save()
             else:
-                p = Project(name=repo['name'], description=repo['name'])
+                p = Project(name=repo['name'], description=repo['name'], url = repo['url'])
                 p.save()
                 pr = Project.objects.get(name=repo['name'])
                 UserParticipation(user=u, project=pr)
