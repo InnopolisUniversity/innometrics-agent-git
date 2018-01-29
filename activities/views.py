@@ -1,6 +1,6 @@
 import os
 
-from django.contrib.auth.models import User
+from activities.models import Users
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -36,19 +36,19 @@ class DownloadList(APIView):
 
 class UserList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    queryset = User.objects.all()
+    queryset = Users.objects.all()
     serializer_class = UserSerializer
 
 
 class UserDetail(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    queryset = User.objects.all()
+    queryset = Users.objects.all()
     serializer_class = UserSerializer
 
 
 class CreateUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
-    model = User
+    model = Users
     serializer_class = UserSerializer
 
 
@@ -95,7 +95,7 @@ class ActivityList(APIView):
             else:
                 brokenSerializers.append(serializer)
         if noErrors:
-            git = User.objects.filter(username=user).values('githubid')
+            git = Users.objects.filter(username=user).values('githubid')
             #print git[0]['githubid']
             search(git[0]['githubid'])
             return Response(

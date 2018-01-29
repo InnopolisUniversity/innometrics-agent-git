@@ -9,6 +9,7 @@ from measurements.models import Measurement
 from django.contrib.auth.models import User
 from commit.models import CommitType
 import re
+from activities.models import Users
 import json
 import requests
 import matplotlib.pyplot as plt
@@ -97,61 +98,109 @@ def user_form(request):
     return render(request, 'commit/user_form.html')
 
 def search(github):
-    u=User.objects.get(githubid=github)
-    if Group.objects.filter(name="Commit").exists():
-        g = Group.objects.get(name="Commit")
-    else:
-        Group(name="Commit").save()
-        g = Group.objects.get(name="Commit")
-    if Entity.objects.filter(name="Commit",group=g).exists():
-        e = Entity.objects.get(name="Commit")
-    else:
-        Entity(name="Commit", group=g).save()
-        e = Entity.objects.get(name="Commit")
-    if Activity.objects.filter(comments="Commit").exists():
-        a = Activity.objects.get(comments="Commit")
-    else:
-        Activity(comments="Commit",entity=e).save()
-        a = Activity.objects.get(comments="Commit")
-    message=[]
-    count=0
-    adap=0
-    per=0
-    cor=0
-    non=0
-    #url = repo['url']
-    for repo in count_user_commits(github):
-        if Project.objects.filter(name=repo['name']).exists():
-            pr = Project.objects.get(name=repo['name'])
-            UserParticipation(user=u, project=pr).save()
+    r = requests.get('https://api.github.com/users/%s' % github)
+    check = json.loads(r.content)
+    if len(check)>2:
+        u=Users.objects.get(githubid=github)
+        if Group.objects.filter(name="Commit").exists():
+            g = Group.objects.get(name="Commit")
         else:
-            p = Project(name=repo['name'], description=repo['name'])
-            p.save()
-            pr = Project.objects.get(name=repo['name'])
-            UserParticipation(user=u, project=pr)
-        r = json.loads(requests.get(repo['commits_url'][:-6]).content)
-        #print len(r)
-        for i in range(0, len(r)):
-            if Measurement.objects.filter(value=r[i]['sha']).exists():
-                #message.append(re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore'))
-                continue
+            Group(name="Commit").save()
+            g = Group.objects.get(name="Commit")
+        if Entity.objects.filter(name="Commit", group=g).exists():
+            e = Entity.objects.get(name="Commit")
+        else:
+            Entity(name="Commit", group=g).save()
+            e = Entity.objects.get(name="Commit")
+        if Activity.objects.filter(comments="Commit").exists():
+            a = Activity.objects.get(comments="Commit")
+        else:
+            Activity(comments="Commit", entity=e).save()
+            a = Activity.objects.get(comments="Commit")
+        message = []
+        count = 0
+        adap = 0
+        per = 0
+        cor = 0
+        non = 0
+        # url = repo['url']
+        for repo in count_user_commits(github):
+            if Project.objects.filter(name=repo['name']).exists():
+                pr = Project.objects.get(name=repo['name'])
+                UserParticipation(user=u, project=pr).save()
             else:
-                count=count+1
-                p = Measurement(activity=a,type="char",name="Commit", value=r[i]['sha'] )
+                p = Project(name=repo['name'], description=repo['name'])
                 p.save()
-                message.append(re.sub('\n',' ',r[i]['commit']['message']).encode('utf-8', 'ignore'))
-
-    #return HttpResponse("Done")
+                pr = Project.objects.get(name=repo['name'])
+                UserParticipation(user=u, project=pr)
+            r = json.loads(requests.get(repo['commits_url'][:-6]).content)
+            for i in range(0, len(r)):
+                if Measurement.objects.filter(value=r[i]['sha']).exists():
+                    continue
+                else:
+                    count = count + 1
+                    p = Measurement(activity=a, type="char", name="Commit on " + repo['name'], value=r[i]['sha'])
+                    p.save()
+                    message.append(re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore'))
+            '''
+            if len(message) > 0:
+                x = wordfeatures(message)
+                lab = label(x)
+                adap = adap + lab[2]
+                per = per + lab[3]
+                cor = cor + lab[1]
+                non = non + lab[0]
+                if CommitType.objects.filter(user=u).exists():
+                    user = CommitType.objects.filter(user=u).values("Adap")
+                    user = list(user)
+                    user1 = user[0]['Adap']
+                    user = CommitType.objects.filter(user=u).values("Perfect")
+                    user = list(user)
+                    user2 = user[0]['Perfect']
+                    user = CommitType.objects.filter(user=u).values("cor")
+                    user = list(user)
+                    user3 = user[0]['cor']
+                    user = CommitType.objects.filter(user=u).values("none")
+                    user = list(user)
+                    user4 = user[0]['none']
+                    adap = adap + user1
+                    per = per + user2
+                    cor = cor + user3
+                    non = non + user4
+                    CommitType.objects.filter(user=u).delete()
+                    CommitType(user=u, Adap=adap, Perfect=per, cor=cor, none=non).save()
+                else:
+                    CommitType(user=u, Adap=adap, Perfect=per, cor=cor, none=non).save()
+                l = ["Adaptive", "Prefective", "Corrective", "None"]
+                values = [user1, user2, user3, user4]
+                colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
+                fig = plt.figure()
+                # Plot
+                def make_autopct(values):
+                    def my_autopct(pct):
+                        total = sum(values)
+                        val = int(round(pct * total / 100.0))
+                        return '{p:.2f}%  ({v:d})'.format(p=pct, v=val)
+    
+                    return my_autopct
+    
+                plt.pie(values, labels=l, autopct=make_autopct(values))
+                plt.axis('equal')
+                fig.savefig("Pie chart/" + github + ".png", bbox_inches='tight')
+        '''
+        return HttpResponse("Done")
+    else:
+        return HttpResponse("Not correct githubid")
         #else:
          #   return HttpResponse("Enter Github ID")
 
 def chart(request):
     return render(request, 'commit/chart.html')
 
-def get_image(request,gitid):
+def get_image(gitid):
     #gitid = request.POST.get('q', '')
-    if User.objects.filter(githubid=gitid).exists():
-        i=User.objects.get(githubid=gitid)
+    if Users.objects.filter(githubid=gitid).exists():
+        i=Users.objects.get(githubid=gitid)
    #for i in range(1, len(number) + 1):
         user = CommitType.objects.filter(user=i).values("Adap")
         user = list(user)
@@ -170,11 +219,16 @@ def get_image(request,gitid):
         colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
         fig = plt.figure()
     # Plot
-        patches, texts = plt.pie(values, colors=colors, shadow=True, startangle=140)
-        plt.legend(patches, l, loc="best")
+        def make_autopct(values):
+            def my_autopct(pct):
+                total = sum(values)
+                val = int(round(pct * total / 100.0))
+                return '{p:.2f}%  ({v:d})'.format(p=pct, v=val)
+            return my_autopct
+        plt.pie(values, labels=l, autopct=make_autopct(values))
         plt.axis('equal')
     #plt.show()
-        fig.savefig("Pie chart/"+gitid+".png", bbox_inches='tight')
+        #fig.savefig("Pie chart/"+gitid+".png", bbox_inches='tight')
         return HttpResponse("Pie chart is ready")
     else:
         return HttpResponse("Please enter correct githubid")

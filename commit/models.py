@@ -1,12 +1,11 @@
 from django.db import models
-#from activities.models import Activity
 from projects.models import Project
 from django.utils import timezone
-from django.contrib.auth.models import User
-
+#from django.contrib.auth.models import User
+from django.conf import settings
 
 class CommitType(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     Adap = models.IntegerField(max_length=10)
     Perfect = models.IntegerField(max_length=10)
     cor = models.IntegerField(max_length=10)
@@ -14,7 +13,6 @@ class CommitType(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     def __str__(self):
         return self.user
-
 
 '''
 class CommitProjectType(models.Model):

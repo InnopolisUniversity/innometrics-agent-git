@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from django.db.models.signals import post_save
 from django.conf import settings
-
+from django.contrib.auth.models import AbstractUser
 from projects.models import UserParticipation
 
 
@@ -11,6 +11,9 @@ class Group(models.Model):
     name = models.TextField(max_length=150, blank=True)
     participation = models.ForeignKey(UserParticipation, blank=True, null=True)
 
+class Users(AbstractUser):
+    githubid = models.CharField(max_length=30, blank=False,null=False)
+    #REQUIRED_FIELDS=['githubid']
 
 class Entity(models.Model):
     name = models.TextField(max_length=120, blank=True)

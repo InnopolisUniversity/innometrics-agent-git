@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -17,18 +18,14 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Project',
+            name='CommitType',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(blank=True, max_length=150)),
-                ('description', models.CharField(blank=True, max_length=150)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='UserParticipation',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('project', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='projects.Project')),
+                ('Adap', models.IntegerField(max_length=10)),
+                ('Perfect', models.IntegerField(max_length=10)),
+                ('cor', models.IntegerField(max_length=10)),
+                ('none', models.IntegerField(max_length=10)),
+                ('date_created', models.DateTimeField(default=django.utils.timezone.now)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
