@@ -50,6 +50,28 @@ def count_user_commits(user):
         repo['num_commits'] = n
         yield repo
 
+def bitbuckted_project(user):
+    r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % user)
+    repos = json.loads(r.content)
+    A=[]
+    for i in repos['values']:
+        A.append(i['name'])
+    return A
+        #print i['name']
+
+
+def bitbuckted_commit(user):
+    r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % user)
+    repos = json.loads(r.content)
+    A = []
+    for i in repos['values']:
+        r = requests.get(i['links']['commits']['href'])
+        r = json.loads(r.content)
+        for j in r['values']:
+            A.append(j['hash'])
+    return A
+    # print i['name']
+
 
 def count_repo_commits(commits_url, _acc=0):
     r = requests.get(commits_url)
@@ -99,7 +121,10 @@ def user_form(request):
 
 def search(github):
     r = requests.get('https://api.github.com/users/%s' % github)
+    bit= requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
+
     check = json.loads(r.content)
+    bith=json.loads(bit.content)
     if len(check)>2:
         u=Users.objects.get(githubid=github)
         if Group.objects.filter(name="Commit").exists():
@@ -188,6 +213,46 @@ def search(github):
                 plt.axis('equal')
                 fig.savefig("Pie chart/" + github + ".png", bbox_inches='tight')
         '''
+        return HttpResponse("Done")
+    elif len(bith)>2:
+        A=bitbuckted_project(github)
+        u = Users.objects.get(githubid=github)
+        if Group.objects.filter(name="Commit").exists():
+            g = Group.objects.get(name="Commit")
+        else:
+            Group(name="Commit").save()
+            g = Group.objects.get(name="Commit")
+        if Entity.objects.filter(name="Commit", group=g).exists():
+            e = Entity.objects.get(name="Commit")
+        else:
+            Entity(name="Commit", group=g).save()
+            e = Entity.objects.get(name="Commit")
+        if Activity.objects.filter(comments="Commit").exists():
+            a = Activity.objects.get(comments="Commit")
+        else:
+            Activity(comments="Commit", entity=e).save()
+            a = Activity.objects.get(comments="Commit")
+        message = []
+        count = 0
+        for i in A:
+
+            if Project.objects.filter(name=i).exists():
+                pr = Project.objects.get(name=i)
+                UserParticipation(user=u, project=pr).save()
+            else:
+                p = Project(name=i, description=i, url=i)
+                p.save()
+                pr = Project.objects.get(name=i)
+                UserParticipation(user=u, project=pr)
+        comm=bitbuckted_commit(github)
+        for i in comm:
+            if Measurement.objects.filter(value=i).exists():
+                continue
+            else:
+                count = count + 1
+                p = Measurement(activity=a, type="char", name="Commit", value=i)
+                p.save()
+                message.append(re.sub('\n', ' ', str(i).encode('utf-8', 'ignore')))
         return HttpResponse("Done")
     else:
         return HttpResponse("Not correct githubid")

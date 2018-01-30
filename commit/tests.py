@@ -14,6 +14,9 @@ class Checking_commits(TestCase):
     def create_user(self, user="Rishabh123", email="abc@gmail.com", githubid="Hrishabh95"):
         return Users.objects.create(username=user,email=email, githubid=githubid)
 
+    def create_usr(self, user="Blecta", email="ab@gmail.com", githubid="blechta"):
+        return Users.objects.create(username=user, email=email, githubid=githubid)
+
     def test_commit_view(self):
         w = self.create_user()
         githubid="Hrishabh95"
@@ -22,7 +25,14 @@ class Checking_commits(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
 
-
+    '''
+    def test_commit_bitbucket(self):
+        w = self.create_usr()
+        githubid="blechta"
+        response = search(githubid)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "Done")
+    '''
     def test_commit_wrong_view(self):
         w = self.create_user()
         githubid="vicmass"
