@@ -13,6 +13,15 @@ class CommitType(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     #def __str__(self):
      #   return self.user
+class Features(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    Del = models.IntegerField(max_length=10)
+    Add = models.IntegerField(max_length=10)
+    No = models.IntegerField(max_length=10)
+    time = models.IntegerField(max_length=10)
+    day = models.IntegerField(max_length=10)
+    #def __str__(self):
+     #   return self.user
 
 '''
 class CommitProjectType(models.Model):

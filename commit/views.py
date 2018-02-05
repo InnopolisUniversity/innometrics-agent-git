@@ -7,7 +7,7 @@ from projects.models import Project,UserParticipation
 from activities.models import Activity,Entity,Group
 from measurements.models import Measurement
 from django.contrib.auth.models import User
-from commit.models import CommitType
+from commit.models import CommitType,Features
 import re
 from datetime import datetime
 from activities.models import Users
@@ -65,12 +65,14 @@ def bitbuckted_commit(user):
     r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % user)
     repos = json.loads(r.content)
     A = []
+    mes=[]
     for i in repos['values']:
         r = requests.get(i['links']['commits']['href'])
         r = json.loads(r.content)
         for j in r['values']:
             A.append(j['hash'])
-    return A
+            mes.append(j['message'])
+    return A,mes
     # print i['name']
 
 
@@ -145,7 +147,179 @@ def search(github):
     bit= requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
     check = json.loads(r.content)
     bith=json.loads(bit.content)
-    if len(check)>2:
+    if len(check)>2 and len(bith)>2:
+        u=Users.objects.get(githubid=github)
+        if Group.objects.filter(name="Commit").exists():
+            g = Group.objects.get(name="Commit")
+        else:
+            Group(name="Commit").save()
+            g = Group.objects.get(name="Commit")
+        if Entity.objects.filter(name="Commit", group=g).exists():
+            e = Entity.objects.get(name="Commit")
+        else:
+            Entity(name="Commit", group=g).save()
+            e = Entity.objects.get(name="Commit")
+        if Activity.objects.filter(comments="Commit").exists():
+            a = Activity.objects.get(comments="Commit")
+        else:
+            Activity(comments="Commit", entity=e).save()
+            a = Activity.objects.get(comments="Commit")
+        message = []
+        bitmessage=[]
+        count = 0
+        adap = 0
+        per = 0
+        cor = 0
+        non = 0
+        # url = repo['url']
+        feat=[]
+        A = bitbuckted_project(github)
+        for pro in A:
+            if Project.objects.filter(name=pro).exists():
+                pr = Project.objects.get(name=pro)
+                UserParticipation(user=u, project=pr).save()
+            else:
+                p = Project(name=pro, description=pro, url=pro)
+                p.save()
+                pr = Project.objects.get(name=pro)
+                UserParticipation(user=u, project=pr)
+        comm,bitmes=bitbuckted_commit(github)
+        for numb in range(0,len(comm)):
+            if Measurement.objects.filter(value=comm[numb]).exists():
+                continue
+            else:
+                count = count + 1
+                p = Measurement(activity=a, type="char", name="Commit on bitbucket", value=comm[numb])
+                p.save()
+                bitmessage.append(re.sub('\n', ' ', str(bitmes[numb]).encode('utf-8', 'ignore')))
+        for repo in count_user_commits(github):
+            if Project.objects.filter(name=repo['name']).exists():
+                pr = Project.objects.get(name=repo['name'])
+                UserParticipation(user=u, project=pr).save()
+            else:
+                p = Project(name=repo['name'], description=repo['name'], url = repo['url'])
+                p.save()
+                pr = Project.objects.get(name=repo['name'])
+                UserParticipation(user=u, project=pr)
+            r = json.loads(requests.get(repo['commits_url'][:-6]).content)
+            for i in range(0, len(r)):
+                if Measurement.objects.filter(value=r[i]['sha']).exists():
+                    continue
+                else:
+                    count = count + 1
+                    p = Measurement(activity=a, type="char", name="Commit on " + repo['name'], value=r[i]['sha'])
+                    rr=requests.get(r[i]['url'])
+                    rr=json.loads(rr.content)
+                    d=rr['stats']['deletions']
+                    l=rr['stats']['additions']
+                    no=len(rr['files'])
+                    date = rr['commit']['committer']['date'].split("T")[0]
+                    t = rr['commit']['committer']['date'].split("T")[1][:-1]
+                    day = datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%A')
+                    if 6 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 12:
+                        time=1
+                    elif 12 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 18:
+                        time=2
+                    elif 18 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 24:
+                        time=3
+                    elif 0 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 6:
+                        time=4
+                    da=Day(day)
+                    feat.append([d,l,no,time,da])
+                    Features(Del=d,Add=l,No=no,time=time,day=da,user=u).save()
+                    #print len(feat)
+                    p.save()
+                    message.append(re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore'))
+        return HttpResponse("Done")
+
+        '''
+            if len(message) > 0:
+                x = wordfeatures(message)
+                lab = label(x)
+                adap = adap + lab[2]
+                per = per + lab[3]
+                cor = cor + lab[1]
+                non = non + lab[0]
+                if CommitType.objects.filter(user=u).exists():
+                    user = CommitType.objects.filter(user=u).values("Adap")
+                    user = list(user)
+                    user1 = user[0]['Adap']
+                    user = CommitType.objects.filter(user=u).values("Perfect")
+                    user = list(user)
+                    user2 = user[0]['Perfect']
+                    user = CommitType.objects.filter(user=u).values("cor")
+                    user = list(user)
+                    user3 = user[0]['cor']
+                    user = CommitType.objects.filter(user=u).values("none")
+                    user = list(user)
+                    user4 = user[0]['none']
+                    adap = adap + user1
+                    per = per + user2
+                    cor = cor + user3
+                    non = non + user4
+                    CommitType.objects.filter(user=u).delete()
+                    CommitType(user=u, Adap=adap, Perfect=per, cor=cor, none=non).save()
+                else:
+                    CommitType(user=u, Adap=adap, Perfect=per, cor=cor, none=non).save()
+                l = ["Adaptive", "Prefective", "Corrective", "None"]
+                values = [user1, user2, user3, user4]
+                colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
+                fig = plt.figure()
+                # Plot
+                def make_autopct(values):
+                    def my_autopct(pct):
+                        total = sum(values)
+                        val = int(round(pct * total / 100.0))
+                        return '{p:.2f}%  ({v:d})'.format(p=pct, v=val)
+    
+                    return my_autopct
+    
+                plt.pie(values, labels=l, autopct=make_autopct(values))
+                plt.axis('equal')
+                fig.savefig("Pie chart/" + github + ".png", bbox_inches='tight')
+        '''
+        #return HttpResponse("Done")
+    elif len(bith)>2:
+        A=bitbuckted_project(github)
+        u = Users.objects.get(githubid=github)
+        if Group.objects.filter(name="Commit").exists():
+            g = Group.objects.get(name="Commit")
+        else:
+            Group(name="Commit").save()
+            g = Group.objects.get(name="Commit")
+        if Entity.objects.filter(name="Commit", group=g).exists():
+            e = Entity.objects.get(name="Commit")
+        else:
+            Entity(name="Commit", group=g).save()
+            e = Entity.objects.get(name="Commit")
+        if Activity.objects.filter(comments="Commit").exists():
+            a = Activity.objects.get(comments="Commit")
+        else:
+            Activity(comments="Commit", entity=e).save()
+            a = Activity.objects.get(comments="Commit")
+        message = []
+        count = 0
+        for i in A:
+            if Project.objects.filter(name=i).exists():
+                pr = Project.objects.get(name=i)
+                UserParticipation(user=u, project=pr).save()
+            else:
+                p = Project(name=i, description=i, url=i)
+                p.save()
+                pr = Project.objects.get(name=i)
+                UserParticipation(user=u, project=pr)
+        comm,mess=bitbuckted_commit(github)
+        for i in range(len(comm)):
+            if Measurement.objects.filter(value=comm[i]).exists():
+                continue
+            else:
+                count = count + 1
+                p = Measurement(activity=a, type="char", name="Commit", value=comm[i])
+                p.save()
+                message.append(re.sub('\n', ' ', str(mess[i]).encode('utf-8', 'ignore')))
+        return HttpResponse("Done")
+
+    elif len(check)>2:
         u=Users.objects.get(githubid=github)
         if Group.objects.filter(name="Commit").exists():
             g = Group.objects.get(name="Commit")
@@ -204,95 +378,12 @@ def search(github):
                         time=4
                     da=Day(day)
                     feat.append([d,l,no,time,da])
-                    print len(feat)
+                    Features(Del=d,Add=l,No=no,time=time,day=da,user=u).save()
+                    #print len(feat)
                     p.save()
                     message.append(re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore'))
-            '''
-            if len(message) > 0:
-                x = wordfeatures(message)
-                lab = label(x)
-                adap = adap + lab[2]
-                per = per + lab[3]
-                cor = cor + lab[1]
-                non = non + lab[0]
-                if CommitType.objects.filter(user=u).exists():
-                    user = CommitType.objects.filter(user=u).values("Adap")
-                    user = list(user)
-                    user1 = user[0]['Adap']
-                    user = CommitType.objects.filter(user=u).values("Perfect")
-                    user = list(user)
-                    user2 = user[0]['Perfect']
-                    user = CommitType.objects.filter(user=u).values("cor")
-                    user = list(user)
-                    user3 = user[0]['cor']
-                    user = CommitType.objects.filter(user=u).values("none")
-                    user = list(user)
-                    user4 = user[0]['none']
-                    adap = adap + user1
-                    per = per + user2
-                    cor = cor + user3
-                    non = non + user4
-                    CommitType.objects.filter(user=u).delete()
-                    CommitType(user=u, Adap=adap, Perfect=per, cor=cor, none=non).save()
-                else:
-                    CommitType(user=u, Adap=adap, Perfect=per, cor=cor, none=non).save()
-                l = ["Adaptive", "Prefective", "Corrective", "None"]
-                values = [user1, user2, user3, user4]
-                colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
-                fig = plt.figure()
-                # Plot
-                def make_autopct(values):
-                    def my_autopct(pct):
-                        total = sum(values)
-                        val = int(round(pct * total / 100.0))
-                        return '{p:.2f}%  ({v:d})'.format(p=pct, v=val)
-    
-                    return my_autopct
-    
-                plt.pie(values, labels=l, autopct=make_autopct(values))
-                plt.axis('equal')
-                fig.savefig("Pie chart/" + github + ".png", bbox_inches='tight')
-        '''
-        #return HttpResponse("Done")
-    if len(bith)>2:
-        A=bitbuckted_project(github)
-        u = Users.objects.get(githubid=github)
-        if Group.objects.filter(name="Commit").exists():
-            g = Group.objects.get(name="Commit")
-        else:
-            Group(name="Commit").save()
-            g = Group.objects.get(name="Commit")
-        if Entity.objects.filter(name="Commit", group=g).exists():
-            e = Entity.objects.get(name="Commit")
-        else:
-            Entity(name="Commit", group=g).save()
-            e = Entity.objects.get(name="Commit")
-        if Activity.objects.filter(comments="Commit").exists():
-            a = Activity.objects.get(comments="Commit")
-        else:
-            Activity(comments="Commit", entity=e).save()
-            a = Activity.objects.get(comments="Commit")
-        message = []
-        count = 0
-        for i in A:
-            if Project.objects.filter(name=i).exists():
-                pr = Project.objects.get(name=i)
-                UserParticipation(user=u, project=pr).save()
-            else:
-                p = Project(name=i, description=i, url=i)
-                p.save()
-                pr = Project.objects.get(name=i)
-                UserParticipation(user=u, project=pr)
-        comm=bitbuckted_commit(github)
-        for i in comm:
-            if Measurement.objects.filter(value=i).exists():
-                continue
-            else:
-                count = count + 1
-                p = Measurement(activity=a, type="char", name="Commit", value=i)
-                p.save()
-                message.append(re.sub('\n', ' ', str(i).encode('utf-8', 'ignore')))
         return HttpResponse("Done")
+
     else:
         return HttpResponse("Not correct githubid")
         #else:
