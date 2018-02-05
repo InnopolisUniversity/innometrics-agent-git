@@ -11,8 +11,8 @@ class CommitType(models.Model):
     cor = models.IntegerField(max_length=10)
     none = models.IntegerField(max_length=10)
     date_created = models.DateTimeField(default=timezone.now)
-    def __str__(self):
-        return self.user
+    #def __str__(self):
+     #   return self.user
 
 '''
 class CommitProjectType(models.Model):

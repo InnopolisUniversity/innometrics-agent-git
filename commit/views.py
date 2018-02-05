@@ -9,6 +9,7 @@ from measurements.models import Measurement
 from django.contrib.auth.models import User
 from commit.models import CommitType
 import re
+from datetime import datetime
 from activities.models import Users
 import json
 import requests
@@ -20,7 +21,7 @@ import collections
 from pylab import *
 import warnings
 warnings.filterwarnings("ignore")
-
+'''
 class MeanEmbeddingVectorizer(object):
     def __init__(self, word2vec):
         self.word2vec = word2vec
@@ -37,7 +38,7 @@ class MeanEmbeddingVectorizer(object):
                     or [np.zeros(self.dim)], axis=0)
             for words in X
         ])
-
+'''
 def count_user_commits(user):
     r = requests.get('https://api.github.com/users/%s/repos' % user)
     repos = json.loads(r.content)
@@ -95,7 +96,7 @@ def find_next(link):
         a, b = l.split(';')
         if b.strip() == 'rel="next"':
             return a.strip()[1:-1]
-
+'''
 def wordfeatures(message):
     #stoplist=stopwords.words('english')
     X=[[word for word in line.split()] for line in message]
@@ -111,6 +112,7 @@ def predict(X):
     Y=model.predict(X)
     return Y
 
+
 def label(X):
     Y=predict(X)
     return collections.Counter(Y)
@@ -118,11 +120,29 @@ def label(X):
 
 def user_form(request):
     return render(request, 'commit/user_form.html')
+'''
+
+
+def Day(name):
+    if name == "Monday":
+        return 1
+    elif name == "Tuesday":
+        return 2
+    elif name == "Wednesday":
+        return 3
+    elif name == "Thursday":
+        return 4
+    elif name == "Friday":
+        return 5
+    elif name == "Saturday":
+        return 6
+    elif name == "Sunday":
+        return 7
+
 
 def search(github):
     r = requests.get('https://api.github.com/users/%s' % github)
     bit= requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
-
     check = json.loads(r.content)
     bith=json.loads(bit.content)
     if len(check)>2:
@@ -149,6 +169,7 @@ def search(github):
         cor = 0
         non = 0
         # url = repo['url']
+        feat=[]
         for repo in count_user_commits(github):
             if Project.objects.filter(name=repo['name']).exists():
                 pr = Project.objects.get(name=repo['name'])
@@ -165,6 +186,25 @@ def search(github):
                 else:
                     count = count + 1
                     p = Measurement(activity=a, type="char", name="Commit on " + repo['name'], value=r[i]['sha'])
+                    rr=requests.get(r[i]['url'])
+                    rr=json.loads(rr.content)
+                    d=rr['stats']['deletions']
+                    l=rr['stats']['additions']
+                    no=len(rr['files'])
+                    date = rr['commit']['committer']['date'].split("T")[0]
+                    t = rr['commit']['committer']['date'].split("T")[1][:-1]
+                    day = datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%A')
+                    if 6 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 12:
+                        time=1
+                    elif 12 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 18:
+                        time=2
+                    elif 18 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 24:
+                        time=3
+                    elif 0 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 6:
+                        time=4
+                    da=Day(day)
+                    feat.append([d,l,no,time,da])
+                    print len(feat)
                     p.save()
                     message.append(re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore'))
             '''
@@ -213,8 +253,8 @@ def search(github):
                 plt.axis('equal')
                 fig.savefig("Pie chart/" + github + ".png", bbox_inches='tight')
         '''
-        return HttpResponse("Done")
-    elif len(bith)>2:
+        #return HttpResponse("Done")
+    if len(bith)>2:
         A=bitbuckted_project(github)
         u = Users.objects.get(githubid=github)
         if Group.objects.filter(name="Commit").exists():
@@ -235,7 +275,6 @@ def search(github):
         message = []
         count = 0
         for i in A:
-
             if Project.objects.filter(name=i).exists():
                 pr = Project.objects.get(name=i)
                 UserParticipation(user=u, project=pr).save()
@@ -259,8 +298,10 @@ def search(github):
         #else:
          #   return HttpResponse("Enter Github ID")
 
+'''
 def chart(request):
     return render(request, 'commit/chart.html')
+'''
 
 def get_image(gitid):
     #gitid = request.POST.get('q', '')
