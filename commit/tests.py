@@ -35,14 +35,14 @@ class Checking_commits(TestCase):
         response = search(githubid)
         #self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
-
+    '''
     def test_commit_Gitnbitbucket(self):
         w = self.create_ur()
         githubid = "Hottemax"
         response = search(githubid)
         #self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
-
+    '''
     def test_commit_wrong_view(self):
         w = self.create_user()
         githubid="vicmass"
