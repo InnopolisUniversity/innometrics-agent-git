@@ -14,10 +14,16 @@ class Checking_commits(TestCase):
     def create_user(self, user="Rishabh123", email="abc@gmail.com", githubid="Hrishabh95"):
         return Users.objects.create(username=user,email=email, githubid=githubid)
 
+    def create_user1(self, user="Rishabh", email="ab@gmail.com", githubid="vicmass"):
+        return Users.objects.create(username=user,email=email, githubid=githubid)
+
     def create_usr(self, user="Blecta", email="ab@gmail.com", githubid="Nicksaurus"):
         return Users.objects.create(username=user, email=email, githubid=githubid)
 
     def create_ur(self, user="Hottemaxs", email="a@gmail.com", githubid="Hottemax"):
+        return Users.objects.create(username=user, email=email, githubid=githubid)
+
+    def create_u(self, user="Hott", email="c@gmail.com", githubid="abca"):
         return Users.objects.create(username=user, email=email, githubid=githubid)
 
     def test_commit_view(self):
@@ -44,11 +50,19 @@ class Checking_commits(TestCase):
         self.assertEqual(response.content, "Done")
     '''
     def test_commit_wrong_view(self):
-        w = self.create_user()
+        w = self.create_user1()
         githubid="vicmass"
         response = search(githubid)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Not correct githubid")
+
+
+    def test_commit_wrong_(self):
+        w = self.create_u()
+        githubid="abca"
+        response = search(githubid)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "Done")
 
     def test_user_creation(self):
         w = self.create_user()

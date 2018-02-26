@@ -9,6 +9,7 @@ from measurements.models import Measurement
 from django.contrib.auth.models import User
 from commit.models import CommitType
 import re
+import svn.remote
 from datetime import datetime
 from activities.models import Users
 import json
@@ -87,19 +88,22 @@ def count_repo_commits(commits_url, _acc=0):
     link = r.headers.get('link')
     if link is None:
         return _acc + n
+    '''
     next_url = find_next(r.headers['link'])
     if next_url is None:
         return _acc + n
     # try to be tail recursive, even when it doesn't matter in CPython
     return count_repo_commits(next_url, _acc + n)
-
+    '''
 
 # given a link header from github, find the link for the next url which they use for pagination
+'''
 def find_next(link):
     for l in link.split(','):
         a, b = l.split(';')
         if b.strip() == 'rel="next"':
             return a.strip()[1:-1]
+'''
 '''
 def wordfeatures(message):
     #stoplist=stopwords.words('english')
@@ -149,7 +153,7 @@ def search(github):
     bit= requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
     check = json.loads(r.content)
     bith=json.loads(bit.content)
-
+    sv=0
     if 2 < len(bith):
         A=bitbuckted_project(github)
         u = Users.objects.get(githubid=github)
@@ -249,6 +253,7 @@ def search(github):
                     da = Day(day)
                     print "GITHub"
                     Measurement(activity=a, type="char", name="Type", value="Git Commit").save()
+                    Measurement(activity=a,type='char', name="User", value=github).save()
                     Measurement(activity=a, type="char", name="Gcommit_ID", value=r[i]['sha']).save()
                     Measurement(activity=a, type="char", name="Gcommit_deletions", value=d).save()
                     Measurement(activity=a, type="char", name="Gcommit_addition", value=l).save()
@@ -258,7 +263,48 @@ def search(github):
                     Measurement(activity=a, type="char", name="Gcommit_message",
                                 value=re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore')).save()
         return HttpResponse("Done")
-
+    elif sv==0:
+        u = Users.objects.get(githubid=github)
+        if Group.objects.filter(name="Commit").exists():
+            g = Group.objects.get(name="Commit")
+        else:
+            Group(name="Commit").save()
+            g = Group.objects.get(name="Commit")
+        if Entity.objects.filter(name="Commit", group=g).exists():
+            en = Entity.objects.get(name="Commit")
+        else:
+            Entity(name="Commit", group=g).save()
+            en = Entity.objects.get(name="Commit")
+        r = svn.remote.RemoteClient('http://svn.apache.org/repos/asf/')
+        entries = r.list()
+        for filename in entries:
+            r = svn.remote.RemoteClient('http://svn.apache.org/repos/asf/' + filename)
+            if Project.objects.filter(name=filename).exists():
+                pr = Project.objects.get(name=filename)
+                UserParticipation(user=u, project=pr).save()
+            else:
+                p = Project(name=filename, description=filename, url='http://svn.apache.org/repos/asf/' + filename)
+                p.save()
+                pr = Project.objects.get(name=filename)
+                UserParticipation(user=u, project=pr)
+            e = r.list()
+            for file in e:
+                if file == "trunk/":
+                    a = svn.remote.RemoteClient('http://svn.apache.org/repos/asf/' + filename + "trunk")
+                    i=0
+                    for log in a.log_default():
+                        if log[3] == github:
+                            if Measurement.objects.filter(value=log[2]).exists():
+                                continue
+                            else:
+                                i=i+1
+                                Activity(comments="SVN commit " + str(i) + " " + str(filename), entity=en).save()
+                                ac = Activity.objects.get(comments="SVN commit " + str(i) + " " + str(filename))
+                                Measurement(activity=ac, type="char", name="Type", value="SVN Commit").save()
+                                Measurement(activity=ac, type='char', name="User", value=github).save()
+                                Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
+                                Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
+        return HttpResponse("Done")
     else:
         return HttpResponse("Not correct githubid")
     '''
