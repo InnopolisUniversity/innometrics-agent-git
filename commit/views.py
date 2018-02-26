@@ -292,6 +292,7 @@ def search(github):
                 if file == "trunk/":
                     a = svn.remote.RemoteClient('http://svn.apache.org/repos/asf/' + filename + "trunk")
                     i=0
+                    '''
                     for log in a.log_default():
                         if log[3] == github:
                             if Measurement.objects.filter(value=log[2]).exists():
@@ -304,9 +305,10 @@ def search(github):
                                 Measurement(activity=ac, type='char', name="User", value=github).save()
                                 Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
                                 Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
+                    '''
         return HttpResponse("Done")
     else:
-        return HttpResponse("Not correct githubid")
+        return HttpResponse("Done")
     '''
     if len(check)>2 and len(bith)>2:
         u=Users.objects.get(githubid=github)

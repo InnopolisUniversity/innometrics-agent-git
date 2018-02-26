@@ -54,7 +54,7 @@ class Checking_commits(TestCase):
         githubid="vicmass"
         response = search(githubid)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, "Not correct githubid")
+        self.assertEqual(response.content, "Done")
 
 
     def test_commit_wrong_(self):
