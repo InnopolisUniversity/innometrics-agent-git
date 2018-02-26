@@ -2,7 +2,7 @@ C:\Rishabh\Masters Thesis\innometrics-dashboard-web-backend-develop>coverage rep
 Name            Stmts   Miss  Cover   Missing
 ---------------------------------------------
 commit\models     12      0   100%
-commit\tests      61      1    98%   21
-commit\views     215     21    93%   86, 90, 160, 165, 170, 188, 211, 216, 222-223, 232, 250-251, 267
+commit\tests      61      1    99%   21
+commit\views     238     19    92%   87, 91, 161, 166, 171, 189, 212, 217, 223-224, 233, 251-252, 269, 274, 283-284, 311-312
 ---------------------------------------------
                                97%
