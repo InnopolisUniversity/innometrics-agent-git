@@ -1,8 +1,8 @@
 C:\Rishabh\Masters Thesis\innometrics-dashboard-web-backend-develop>coverage report -m commit/models.py
 Name            Stmts   Miss  Cover   Missing
 ---------------------------------------------
-commit/models      19      0   100%
-commit/views      284     55    81%   84, 140, 153, 158, 163, 179-180, 189, 200-203, 207, 283-320, 325, 330, 335, 349-350, 359, 377-378, 385
-commit/tests       66      1    98%   29
+commit\models     12      0   100%
+commit\tests      61      1    98%   21
+commit\views     215     21    93%   86, 90, 160, 165, 170, 188, 211, 216, 222-223, 232, 250-251, 267
 ---------------------------------------------
-                                93%
+                               97%
