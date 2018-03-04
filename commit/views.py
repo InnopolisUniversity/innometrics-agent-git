@@ -68,14 +68,21 @@ def bitbuckted_commit(user):
     A = []
     mes=[]
     date=[]
+    branch=[]
     for i in repos['values']:
         r = requests.get(i['links']['commits']['href'])
         r = json.loads(r.content)
+        st = requests.get(i['links']['statuses']['href'])
+        st=json.loads(st.content)
+        if len(st['values'])==0:
+            branch.append('master')
+        else:
+            branch.append(str(st['values'][0]['description']).split(":")[1])
         for j in r['values']:
             A.append(j['hash'])
             mes.append(j['message'])
             date.append(j['date'])
-    return A,mes,date
+    return A,mes,date,branch
     # print i['name']
 
 
@@ -183,7 +190,7 @@ def search(github):
             p.save()
             pr = Project.objects.get(name=i)
             UserParticipation(user=u, project=pr)
-        comm,mess,date=bitbuckted_commit(github)
+        comm,mess,date,br=bitbuckted_commit(github)
         for i in range(len(comm)):
             if Measurement.objects.filter(value=comm[i]).exists():
                 continue
@@ -200,9 +207,11 @@ def search(github):
                 elif 0 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 6:
                     time = 4
                 da = Day(da)
+
                 Measurement(activity=a, type="char", name="BitBucketCommit_ID", value=comm[i]).save()
                 Measurement(activity=a, type="char", name="BitBucketCommit_Day", value=da).save()
                 Measurement(activity=a, type="char", name="BitBucketCommit_Time", value=t).save()
+                Measurement(activity=a, type="char", name="BitBucketCommit_branch", value=br[i]).save()
                 Measurement(activity=a, type="char", name="BitBucketCommit_message", value=mess[i]).save()
         return HttpResponse("Done")
 
