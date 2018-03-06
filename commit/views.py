@@ -72,13 +72,13 @@ def bitbuckted_commit(user):
     for i in repos['values']:
         r = requests.get(i['links']['commits']['href'])
         r = json.loads(r.content)
-        st = requests.get(i['links']['statuses']['href'])
-        st=json.loads(st.content)
-        if len(st['values'])==0:
-            branch.append('master')
-        else:
-            branch.append(str(st['values'][0]['description']).split(":")[1])
         for j in r['values']:
+            st = requests.get(j['links']['statuses']['href'])
+            st = json.loads(st.content)
+            if len(st['values']) == 0:
+                branch.append('master')
+            else:
+                branch.append(str(st['values'][0]['description']).split(":")[1])
             A.append(j['hash'])
             mes.append(j['message'])
             date.append(j['date'])
@@ -169,16 +169,36 @@ def search(github):
         else:
             Group(name="Commit").save()
             g = Group.objects.get(name="Commit")
+
+        if Group.objects.filter(name="Issue").exists():
+            g1 = Group.objects.get(name="Issue")
+        else:
+            Group(name="Issue").save()
+            g1 = Group.objects.get(name="Issue")
+
         if Entity.objects.filter(name="Commit", group=g).exists():
             e = Entity.objects.get(name="Commit")
         else:
             Entity(name="Commit", group=g).save()
             e = Entity.objects.get(name="Commit")
+
+        if Entity.objects.filter(name="Issue", group=g1).exists():
+            e1 = Entity.objects.get(name="Issue")
+        else:
+            Entity(name="Issue", group=g1).save()
+            e1 = Entity.objects.get(name="Issue")
+
         if Activity.objects.filter(comments="BitBucketCommit").exists():
            a = Activity.objects.get(comments="BitBucketCommit")
         else:
             Activity(comments="BitBucketCommit", entity=e).save()
             a = Activity.objects.get(comments="BitBucketCommit")
+
+        if Activity.objects.filter(comments="BitBucketissue").exists():
+           a1 = Activity.objects.get(comments="BitBucketissue")
+        else:
+            Activity(comments="BitBucketissue", entity=e1).save()
+            a1 = Activity.objects.get(comments="BitBucketissue")
         message = []
         count = 0
         for i in A:
@@ -191,6 +211,21 @@ def search(github):
             pr = Project.objects.get(name=i)
             UserParticipation(user=u, project=pr)
         comm,mess,date,br=bitbuckted_commit(github)
+        r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
+        repos = json.loads(r.content)
+        for m in repos['values']:
+            r = requests.get("https://api.bitbucket.org/2.0/repositories/"+github+"/"+m['name'])
+            r = json.loads(r.content)
+            r=json.loads(requests.get(r['links']['issues']['href']).content)
+            for i in r['values']:
+                if Measurement.objects.filter(value=i['id']).exists():
+                    continue
+                else:
+                    Measurement(activity=a, type="char", name="BitBucketCommit_ID", value=i['id']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_kind", value=i['kind']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_name", value=i['repository']['name']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_priority", value=i['priority']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_title", value=i['title']).save()
         for i in range(len(comm)):
             if Measurement.objects.filter(value=comm[i]).exists():
                 continue
@@ -222,11 +257,23 @@ def search(github):
         else:
             Group(name="Commit").save()
             g = Group.objects.get(name="Commit")
+        if Group.objects.filter(name="Issue").exists():
+            gi = Group.objects.get(name="Issue")
+        else:
+            Group(name="Issue").save()
+            gi = Group.objects.get(name="Issue")
         if Entity.objects.filter(name="Commit", group=g).exists():
             e = Entity.objects.get(name="Commit")
         else:
             Entity(name="Commit", group=g).save()
             e = Entity.objects.get(name="Commit")
+
+        if Entity.objects.filter(name="Issue", group=gi).exists():
+            ei = Entity.objects.get(name="Issue")
+        else:
+            Entity(name="Issue", group=gi).save()
+            ei = Entity.objects.get(name="Issue")
+
         for repo in count_user_commits(github):
             if Project.objects.filter(name=repo['name']).exists():
                 pr = Project.objects.get(name=repo['name'])
@@ -237,6 +284,17 @@ def search(github):
                 pr = Project.objects.get(name=repo['name'])
                 UserParticipation(user=u, project=pr)
             r = json.loads(requests.get(repo['commits_url'][:-6]).content)
+            r1 = json.loads(requests.get(repo['issue_comment_url'][:-9].content))
+            for k in range(0,len(r1)):
+                if Measurement.objects.filter(value=r[i]['id']).exists():
+                    continue
+                else:
+                    Activity(comments="Git Issue " + str(k) + " " + str(repo['name']), entity=ei).save()
+                    a = Activity.objects.get(comments="Git Issue " + str(i) + " " + str(repo['name']))
+                    Measurement(activity=a, type="char", name="Type", value="Git Issue").save()
+                    Measurement(activity=a, type="char", name="GIssue_ID", value=r[i]['id']).save()
+                    Measurement(activity=a, type="char", name="GIssue_ID", value=r[i]['body']).save()
+
             for i in range(0, len(r)):
                 if Measurement.objects.filter(value=r[i]['sha']).exists():
                     continue
