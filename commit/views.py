@@ -61,9 +61,6 @@ def count_user_commits(accesstoken):
     repos = json.loads(r.content)
 
     for repo in repos:
-        if repo['fork'] is True:
-            # skip it
-            continue
         n = count_repo_commits(repo['commits_url'][:-6])
         repo['num_commits'] = n
         yield repo
@@ -267,7 +264,7 @@ def search(github,access):
         return HttpResponse("Done")
 
     elif len(check) > 2:
-        u = Users.objects.get(githubid=github,accesstoken=access)
+        u = Users.objects.get(githubid=github)
         if Group.objects.filter(name="Commit").exists():
             g = Group.objects.get(name="Commit")
         else:
