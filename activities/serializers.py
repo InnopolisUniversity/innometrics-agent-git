@@ -12,13 +12,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'username', 'password', 'email','githubid')
+        fields = ('id', 'username', 'password', 'email','githubid','accesstoken')
 
     def create(self, validated_data):
         user = get_user_model().objects.create(
             username=validated_data['username'],
             email=validated_data['email'],
-            githubid=validated_data['githubid']
+            githubid=validated_data['githubid'],
+            accesstoken=validated_data['accesstoken']
         )
         user.set_password(validated_data['password'])
         user.save()

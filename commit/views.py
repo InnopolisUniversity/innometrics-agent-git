@@ -39,9 +39,11 @@ class MeanEmbeddingVectorizer(object):
                     or [np.zeros(self.dim)], axis=0)
             for words in X
         ])
-'''
+
+
 def count_user_commits(user):
     r = requests.get('https://api.github.com/users/%s/repos' % user)
+    
     repos = json.loads(r.content)
 
     for repo in repos:
@@ -51,6 +53,21 @@ def count_user_commits(user):
         n = count_repo_commits(repo['url'] + '/commits')
         repo['num_commits'] = n
         yield repo
+
+'''
+def count_user_commits(accesstoken):
+    r = requests.get('https://api.github.com/user/repos?access_token=%s' % accesstoken)
+
+    repos = json.loads(r.content)
+
+    for repo in repos:
+        if repo['fork'] is True:
+            # skip it
+            continue
+        n = count_repo_commits(repo['commits_url'][:-6])
+        repo['num_commits'] = n
+        yield repo
+
 
 def bitbuckted_project(user):
     r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % user)
@@ -155,7 +172,7 @@ def Day(name):
         return 7
 
 
-def search(github):
+def search(github,access):
     r = requests.get('https://api.github.com/users/%s' % github)
     bit= requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
     check = json.loads(r.content)
@@ -242,7 +259,6 @@ def search(github):
                 elif 0 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 6:
                     time = 4
                 da = Day(da)
-
                 Measurement(activity=a, type="char", name="BitBucketCommit_ID", value=comm[i]).save()
                 Measurement(activity=a, type="char", name="BitBucketCommit_Day", value=da).save()
                 Measurement(activity=a, type="char", name="BitBucketCommit_Time", value=t).save()
@@ -251,7 +267,7 @@ def search(github):
         return HttpResponse("Done")
 
     elif len(check) > 2:
-        u = Users.objects.get(githubid=github)
+        u = Users.objects.get(githubid=github,accesstoken=access)
         if Group.objects.filter(name="Commit").exists():
             g = Group.objects.get(name="Commit")
         else:
@@ -274,7 +290,7 @@ def search(github):
             Entity(name="Issue", group=gi).save()
             ei = Entity.objects.get(name="Issue")
 
-        for repo in count_user_commits(github):
+        for repo in count_user_commits(access):
             if Project.objects.filter(name=repo['name']).exists():
                 pr = Project.objects.get(name=repo['name'])
                 UserParticipation(user=u, project=pr).save()
@@ -284,7 +300,7 @@ def search(github):
                 pr = Project.objects.get(name=repo['name'])
                 UserParticipation(user=u, project=pr)
             r = json.loads(requests.get(repo['commits_url'][:-6]).content)
-            r1 = json.loads(requests.get(repo['issue_comment_url'][:-9].content))
+            r1 = json.loads(requests.get(repo['issue_comment_url'][:-9]).content)
             for k in range(0,len(r1)):
                 if Measurement.objects.filter(value=r[i]['id']).exists():
                     continue
@@ -294,7 +310,6 @@ def search(github):
                     Measurement(activity=a, type="char", name="Type", value="Git Issue").save()
                     Measurement(activity=a, type="char", name="GIssue_ID", value=r[i]['id']).save()
                     Measurement(activity=a, type="char", name="GIssue_ID", value=r[i]['body']).save()
-
             for i in range(0, len(r)):
                 if Measurement.objects.filter(value=r[i]['sha']).exists():
                     continue
@@ -318,7 +333,6 @@ def search(github):
                     elif 0 <= int(t.split(":")[0]) and int(t.split(":")[0]) < 6:
                         time = 4
                     da = Day(day)
-                    print "GITHub"
                     Measurement(activity=a, type="char", name="Type", value="Git Commit").save()
                     Measurement(activity=a,type='char', name="User", value=github).save()
                     Measurement(activity=a, type="char", name="Gcommit_ID", value=r[i]['sha']).save()

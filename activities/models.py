@@ -13,6 +13,7 @@ class Group(models.Model):
 
 class Users(AbstractUser):
     githubid = models.CharField(max_length=30, blank=False,null=False)
+    accesstoken=models.CharField(max_length=200,blank=False,null=False)
     #REQUIRED_FIELDS=['githubid']
 
 class Entity(models.Model):

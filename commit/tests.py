@@ -11,10 +11,10 @@ from activities.models import Users
 # Create your tests here.
 class Checking_commits(TestCase):
 
-    def create_user(self, user="Rishabh123", email="abc@gmail.com", githubid="Hrishabh95"):
-        return Users.objects.create(username=user,email=email, githubid=githubid)
+    def create_user(self, user="Rishabh", email="abc@gmail.com", githubid="Hrishabh95",accesstoken="10e9a94541ab7cd3371ad18077fb77a3f34b6c4e"):
+        return Users.objects.create(username=user,email=email, githubid=githubid, accesstoken=accesstoken)
 
-    def create_user1(self, user="Rishabh", email="ab@gmail.com", githubid="vicmass"):
+    def create_user1(self, user="Rishabhq", email="ab@gmail.com", githubid="vicmass"):
         return Users.objects.create(username=user,email=email, githubid=githubid)
 
     def create_usr(self, user="Blecta", email="ab@gmail.com", githubid="Nicksaurus"):
@@ -25,12 +25,13 @@ class Checking_commits(TestCase):
 
     def create_u(self, user="Hott", email="c@gmail.com", githubid="abca"):
         return Users.objects.create(username=user, email=email, githubid=githubid)
-    '''
+
     def test_commit_view(self):
         w = self.create_user()
         githubid="Hrishabh95"
+        accesstoken='10e9a94541ab7cd3371ad18077fb77a3f34b6c4e'
         request = 'fake request'
-        response = search(githubid)
+        response = search(githubid,accesstoken)
         #self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
 
@@ -41,14 +42,14 @@ class Checking_commits(TestCase):
         response = search(githubid)
         #self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
-    '''
+    
     def test_commit_Gitnbitbucket(self):
         w = self.create_ur()
         githubid = "Hottemax"
         response = search(githubid)
         #self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
-    '''
+    
 
     def test_commit_wrong_view(self):
         w = self.create_user1()
@@ -99,3 +100,4 @@ class Checking_commits(TestCase):
         response = get_image(github)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Please enter correct githubid")
+    '''

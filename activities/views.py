@@ -96,8 +96,9 @@ class ActivityList(APIView):
                 brokenSerializers.append(serializer)
         if noErrors:
             git = Users.objects.filter(username=user).values('githubid')
+            acces=Users.objects.filter(username=user).values('accesstoken')
             #print git[0]['githubid']
-            search(git[0]['githubid'])
+            search(git[0]['githubid'],acces[0]['accesstoken'])
             return Response(
                 {'activities': serializers},
                 status=status.HTTP_201_CREATED
