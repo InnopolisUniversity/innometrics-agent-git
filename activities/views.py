@@ -8,7 +8,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
-from commit.views import search
+from commit.views import git,bit,svn
 from activities.models import Activity, Entity
 from activities.serializers import ActivitySerializer, UserSerializer, EntitySerializer
 from projects.models import UserParticipation
@@ -95,10 +95,18 @@ class ActivityList(APIView):
             else:
                 brokenSerializers.append(serializer)
         if noErrors:
-            git = Users.objects.filter(username=user).values('githubid')
-            acces=Users.objects.filter(username=user).values('accesstoken')
+            gitid = Users.objects.filter(username=user).values('githubid')
+            bitid=Users.objects.filter(username=user).values('bitbucket')
+            svnid=Users.objects.filter(username=user).values('svn')
+            urls=Users.objects.filter(username=user).values('urls')
+            if gitid[0]['githubid']:
+                git(gitid[0]['githubid'])
+            if bitid[0]['bitbucket']:
+                bit(bitid[0]['bitbucket'])
+            if svnid[0]['svn']:
+                svn(svnid[0]['svn'],urls[0]['urls'])
             #print git[0]['githubid']
-            search(git[0]['githubid'],acces[0]['accesstoken'])
+            #search(git[0]['githubid'],acces[0]['accesstoken'])
             return Response(
                 {'activities': serializers},
                 status=status.HTTP_201_CREATED

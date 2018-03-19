@@ -15,15 +15,16 @@ class CommitType(models.Model):
      #   return self.user
 
 
-'''
-class CommitProjectType(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
-    projectname = models.ForeignKey(Project, on_delete=models.CASCADE)
-    Adap = models.IntegerField(max_length=10)
-    Perfect = models.IntegerField(max_length=10)
-    cor = models.IntegerField(max_length=10)
-    none = models.IntegerField(max_length=10)
 
-    def __str__(self):
-        return self.user
+'''
+class RepositoryUser(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    githubid = models.CharField(max_length=100)
+    gitaccesstoken = models.CharField(max_length=100)
+    bitbucket = models.CharField(max_length=100)
+    password = models.CharField(max_length=100)
+    svn = models.CharField(max_length=100)
+
+    #def __str__(self):
+     #   return self.user
 '''

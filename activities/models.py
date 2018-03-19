@@ -12,8 +12,12 @@ class Group(models.Model):
     participation = models.ForeignKey(UserParticipation, blank=True, null=True)
 
 class Users(AbstractUser):
-    githubid = models.CharField(max_length=30, blank=False,null=False)
-    accesstoken=models.CharField(max_length=200,blank=False,null=False)
+    githubid = models.CharField(max_length=30, blank=True,null=True)
+    #accesstoken=models.CharField(max_length=200,blank=True,null=True)
+    bitbucket = models.CharField(max_length=100,blank=True,null=True)
+    #passwordbit = models.CharField(max_length=100,blank=True,null=True)
+    svn = models.CharField(max_length=100,blank=True,null=True)
+    urls=models.CharField(max_length=10000,blank=True,null=True)
     #REQUIRED_FIELDS=['githubid']
 
 class Entity(models.Model):
