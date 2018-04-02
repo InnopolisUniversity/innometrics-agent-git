@@ -166,11 +166,11 @@ def Day(name):
 
 
 
-def git(github,access):
+def git(github):
     u = Users.objects.get(githubid=github)
-    #root = tkinter.Tk()
-    #root.withdraw()
-    #access = simpledialog.askstring("Accesstoken", "Accesstoken")
+    root = tkinter.Tk()
+    root.withdraw()
+    access = simpledialog.askstring("Accesstoken", "Accesstoken")
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -248,11 +248,11 @@ def git(github,access):
                             value=re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore')).save()
     return HttpResponse("Done")
 
-def bit(github,bitpassword):
+def bit(github):
     root = tkinter.Tk()
     headers = {'Content-Type': 'application/json'}
-    #root.withdraw()
-    #bitpassword = simpledialog.askstring("Password", "Enter Password", show='*')
+    root.withdraw()
+    bitpassword = simpledialog.askstring("Password", "Enter Password", show='*')
     A = bitbuckted_project(github,bitpassword)
     u = Users.objects.get(bitbucket=github)
     if Group.objects.filter(name="Commit").exists():
