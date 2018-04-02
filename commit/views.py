@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from projects.models import Project,UserParticipation
 from activities.models import Activity,Entity,Group
@@ -14,12 +13,8 @@ from datetime import datetime
 from activities.models import Users
 import json
 import requests
-import Tkinter, tkSimpleDialog
-import matplotlib.pyplot as plt
-from nltk.corpus import stopwords
-import gensim
-import pickle
-import collections
+import tkinter
+from tkinter import simpledialog
 from pylab import *
 import warnings
 warnings.filterwarnings("ignore")
@@ -58,17 +53,16 @@ def count_user_commits(user):
 '''
 def count_user_commits(accesstoken):
     r = requests.get('https://api.github.com/user/repos?access_token=%s' % accesstoken)
-
     repos = json.loads(r.content)
-
     for repo in repos:
-        n = count_repo_commits(repo['commits_url'][:-6])
+        n = count_repo_commits(repo['commits_url'][:-6], accesstoken)
         repo['num_commits'] = n
         yield repo
 
 
-def bitbuckted_project(user):
-    r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % user)
+def bitbuckted_project(user,password):
+    headers = {'Content-Type': 'application/json'}
+    r = requests.get("https://bitbucket.org/api/2.0/repositories/%s" % user, auth=(user,password), headers=headers )
     repos = json.loads(r.content)
     A=[]
     for i in repos['values']:
@@ -77,18 +71,19 @@ def bitbuckted_project(user):
         #print i['name']
 
 
-def bitbuckted_commit(user):
-    r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % user)
+def bitbuckted_commit(user,password):
+    headers = {'Content-Type': 'application/json'}
+    r = requests.get("https://bitbucket.org/api/2.0/repositories/%s" % user, auth=(user, password), headers=headers)
     repos = json.loads(r.content)
     A = []
     mes=[]
     date=[]
     branch=[]
     for i in repos['values']:
-        r = requests.get(i['links']['commits']['href'])
+        r = requests.get(i['links']['commits']['href'],auth=(user, password), headers=headers)
         r = json.loads(r.content)
         for j in r['values']:
-            st = requests.get(j['links']['statuses']['href'])
+            st = requests.get(j['links']['statuses']['href'], auth=(user, password), headers=headers)
             st = json.loads(st.content)
             if len(st['values']) == 0:
                 branch.append('master')
@@ -101,8 +96,8 @@ def bitbuckted_commit(user):
     # print i['name']
 
 
-def count_repo_commits(commits_url, _acc=0):
-    r = requests.get(commits_url)
+def count_repo_commits(commits_url,accesstoken,_acc=0):
+    r = requests.get(commits_url+'?access_token=%s' % accesstoken)
     commits = json.loads(r.content)
     n = len(commits)
     if n == 0:
@@ -171,11 +166,11 @@ def Day(name):
 
 
 
-def git(github):
+def git(github,access):
     u = Users.objects.get(githubid=github)
-    root = Tkinter.Tk()
-    root.withdraw()
-    access = tkSimpleDialog.askstring("Accesstoken", "Accesstoken")
+    #root = tkinter.Tk()
+    #root.withdraw()
+    #access = simpledialog.askstring("Accesstoken", "Accesstoken")
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -207,8 +202,8 @@ def git(github):
             p.save()
             pr = Project.objects.get(name=repo['name'])
             UserParticipation(user=u, project=pr)
-        r = json.loads(requests.get(repo['commits_url'][:-6]).content)
-        r1 = json.loads(requests.get(repo['issue_comment_url'][:-9]).content)
+        r = json.loads(requests.get(repo['commits_url'][:-6]+'?access_token=%s' % access).content)
+        r1 = json.loads(requests.get(repo['issue_comment_url'][:-9]+'?access_token=%s' % access).content)
         for k in range(0, len(r1)):
             if Measurement.objects.filter(value=r[i]['id']).exists():
                 continue
@@ -224,7 +219,7 @@ def git(github):
             else:
                 Activity(comments="Git commit " + str(i) + " " + str(repo['name']), entity=e).save()
                 a = Activity.objects.get(comments="Git commit " + str(i) + " " + str(repo['name']))
-                rr = requests.get(r[i]['url'])
+                rr = requests.get(r[i]['url']+'?access_token=%s' % access)
                 rr = json.loads(rr.content)
                 d = rr['stats']['deletions']
                 l = rr['stats']['additions']
@@ -253,12 +248,13 @@ def git(github):
                             value=re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore')).save()
     return HttpResponse("Done")
 
-def bit(github):
-    A = bitbuckted_project(github)
-    root = Tkinter.Tk()
-    root.withdraw()
-    bitpassword = tkSimpleDialog.askstring("Password", "Enter Password", show='*')
-    u = Users.objects.get(githubid=github)
+def bit(github,bitpassword):
+    root = tkinter.Tk()
+    headers = {'Content-Type': 'application/json'}
+    #root.withdraw()
+    #bitpassword = simpledialog.askstring("Password", "Enter Password", show='*')
+    A = bitbuckted_project(github,bitpassword)
+    u = Users.objects.get(bitbucket=github)
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -305,22 +301,23 @@ def bit(github):
         p.save()
         pr = Project.objects.get(name=i)
         UserParticipation(user=u, project=pr)
-    comm, mess, date, br = bitbuckted_commit(github)
-    r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
+    comm, mess, date, br = bitbuckted_commit(github,bitpassword)
+    r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github, auth=(github, bitpassword), headers=headers)
     repos = json.loads(r.content)
     for m in repos['values']:
-        r = requests.get("https://api.bitbucket.org/2.0/repositories/" + github + "/" + m['name'])
+        r = requests.get("https://api.bitbucket.org/2.0/repositories/" + github + "/" + m['name'],auth=(github, bitpassword), headers=headers )
         r = json.loads(r.content)
-        r = json.loads(requests.get(r['links']['issues']['href']).content)
-        for i in r['values']:
-            if Measurement.objects.filter(value=i['id']).exists():
-                continue
-            else:
-                Measurement(activity=a, type="char", name="BitBucketCommit_ID", value=i['id']).save()
-                Measurement(activity=a, type="char", name="BitBucketCommit_kind", value=i['kind']).save()
-                Measurement(activity=a, type="char", name="BitBucketCommit_name", value=i['repository']['name']).save()
-                Measurement(activity=a, type="char", name="BitBucketCommit_priority", value=i['priority']).save()
-                Measurement(activity=a, type="char", name="BitBucketCommit_title", value=i['title']).save()
+        if r['has_issues']:
+            r = json.loads(requests.get(r['links']['issues']['href'],auth=(github, bitpassword), headers=headers).content)
+            for i in r['values']:
+                if Measurement.objects.filter(value=i['id']).exists():
+                    continue
+                else:
+                    Measurement(activity=a, type="char", name="BitBucketCommit_ID", value=i['id']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_kind", value=i['kind']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_name", value=i['repository']['name']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_priority", value=i['priority']).save()
+                    Measurement(activity=a, type="char", name="BitBucketCommit_title", value=i['title']).save()
     for i in range(len(comm)):
         if Measurement.objects.filter(value=comm[i]).exists():
             continue
@@ -344,8 +341,46 @@ def bit(github):
             Measurement(activity=a, type="char", name="BitBucketCommit_message", value=mess[i]).save()
     return HttpResponse("Done")
 
-def svn(github):
-    u = Users.objects.get(githubid=github)
+def svna(github,urls):
+    u = Users.objects.get(svn=github)
+    if Group.objects.filter(name="Commit").exists():
+        g = Group.objects.get(name="Commit")
+    else:
+        Group(name="Commit").save()
+        g = Group.objects.get(name="Commit")
+    if Entity.objects.filter(name="Commit", group=g).exists():
+        en = Entity.objects.get(name="Commit")
+    else:
+        Entity(name="Commit", group=g).save()
+        en = Entity.objects.get(name="Commit")
+    for url in urls.split(','):
+        r = svn.remote.RemoteClient(url)
+        info=r.info()
+        if Project.objects.filter(name=info['entry_path']).exists():
+            pr = Project.objects.get(name=info['entry_path'])
+            UserParticipation(user=u, project=pr).save()
+        else:
+            p = Project(name=info['entry_path'], description=info['entry_path'])
+            p.save()
+            pr = Project.objects.get(name=info['entry_path'])
+            UserParticipation(user=u, project=pr)
+        for log in r.log_default():
+                if log[3] == github:
+                    if Measurement.objects.filter(value=log[2]).exists():
+                        continue
+                    else:
+                        i = i + 1
+                        Activity(comments="SVN commit " + str(i) + " " + str(info['entry_path']), entity=en).save()
+                        ac = Activity.objects.get(comments="SVN commit " + str(i) + " " + str(info['entry_path']))
+                        Measurement(activity=ac, type="char", name="Type", value="SVN Commit").save()
+                        Measurement(activity=ac, type='char', name="User", value=github).save()
+                        Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
+                        Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
+    return HttpResponse("Done")
+
+
+def pubsvn(github):
+    u = Users.objects.get(svn=github)
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -386,7 +421,7 @@ def svn(github):
                             Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
                             Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
     return HttpResponse("Done")
-
+'''
 def search(github):
     r = requests.get('https://api.github.com/users/%s' % github)
     bit= requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github)
@@ -594,7 +629,7 @@ def search(github):
                 if file == "trunk/":
                     a = svn.remote.RemoteClient('http://svn.apache.org/repos/asf/' + filename + "trunk")
                     i=0
-                    '''
+                    
                     for log in a.log_default():
                         if log[3] == github:
                             if Measurement.objects.filter(value=log[2]).exists():
@@ -607,11 +642,11 @@ def search(github):
                                 Measurement(activity=ac, type='char', name="User", value=github).save()
                                 Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
                                 Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
-                    '''
+                    
         return HttpResponse("Done")
     else:
         return HttpResponse("Done")
-    '''
+    
     if len(check)>2 and len(bith)>2:
         u=Users.objects.get(githubid=github)
         if Group.objects.filter(name="Commit").exists():
@@ -695,7 +730,7 @@ def search(github):
                     Measurement(activity=a, type="char", name="Gcommit_timelabel", value=time).save()
                     Measurement(activity=a, type="char", name="Gcommit_daylabel", value=da).save()
                     Measurement(activity=a, type="char", name="Gcommit_message", value=re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore')).save()
-        return HttpResponse("Done")
+        #return HttpResponse("Done")
         
         
         if len(message) > 0:
@@ -742,17 +777,15 @@ def search(github):
             plt.pie(values, labels=l, autopct=make_autopct(values))
             plt.axis('equal')
             fig.savefig("Pie chart/" + github + ".png", bbox_inches='tight')
-        '''
+        
         #return HttpResponse("Done")
-
-
-
+'''
          #   return HttpResponse("Enter Github ID")
 
-'''
+
 def chart(request):
     return render(request, 'commit/chart.html')
-'''
+
 
 def get_image(gitid):
     #gitid = request.POST.get('q', '')

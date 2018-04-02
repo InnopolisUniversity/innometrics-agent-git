@@ -103,8 +103,10 @@ class ActivityList(APIView):
                 git(gitid[0]['githubid'])
             if bitid[0]['bitbucket']:
                 bit(bitid[0]['bitbucket'])
-            if svnid[0]['svn']:
+            if svnid[0]['svn'] and urls[0]['urls']:
                 svn(svnid[0]['svn'],urls[0]['urls'])
+            if svnid[0]['svn']:
+                pubsvn(svnid[0]['svn'])
             #print git[0]['githubid']
             #search(git[0]['githubid'],acces[0]['accesstoken'])
             return Response(
