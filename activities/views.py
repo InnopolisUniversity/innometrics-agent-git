@@ -4,15 +4,16 @@ from activities.models import Users
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+import tkinter
+from tkinter import simpledialog
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
-from commit.views import git,bit,svn
+from commit.views import git,bit,svna,pubsvn
 from activities.models import Activity, Entity
 from activities.serializers import ActivitySerializer, UserSerializer, EntitySerializer
 from projects.models import UserParticipation
-
+import datetime
 
 class DownloadList(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -79,6 +80,39 @@ class ActivityList(APIView):
         noErrors = True
         serializers = []
         brokenSerializers = []
+        usr=Users.objects.filter(username=request.user).values('time')
+        now = datetime.datetime.now().replace(tzinfo=None)
+        if usr[0]['time']:
+            c=usr[0]['time'].replace(tzinfo=None) - datetime.datetime.now().replace(tzinfo=None)
+            diff=divmod(c.days * 86400 + c.seconds, 60)
+            if diff[0]>60:
+                gitid = Users.objects.filter(username=request.user).values('githubid')
+                bitid = Users.objects.filter(username=request.user).values('bitbucket')
+                svnid = Users.objects.filter(username=request.user).values('svn')
+                urls = Users.objects.filter(username=request.user).values('urls')
+                if gitid[0]['githubid']:
+                    git(gitid[0]['githubid'])
+                if bitid[0]['bitbucket']:
+                    bit(bitid[0]['bitbucket'])
+                if svnid[0]['svn'] and urls[0]['urls']:
+                    svna(svnid[0]['svn'], urls[0]['urls'])
+                if svnid[0]['svn']:
+                    pubsvn(svnid[0]['svn'])
+                Users.objects.filter(username=request.user).update(time=now)
+        else:
+            Users.objects.filter(username=request.user).update(time=now)
+            gitid = Users.objects.filter(username=request.user).values('githubid')
+            bitid = Users.objects.filter(username=request.user).values('bitbucket')
+            svnid = Users.objects.filter(username=request.user).values('svn')
+            urls = Users.objects.filter(username=request.user).values('urls')
+            if gitid[0]['githubid']:
+                git(gitid[0]['githubid'])
+            if bitid[0]['bitbucket']:
+                bit(bitid[0]['bitbucket'])
+            if svnid[0]['svn'] and urls[0]['urls']:
+                svna(svnid[0]['svn'], urls[0]['urls'])
+            if svnid[0]['svn']:
+                pubsvn(svnid[0]['svn'])
         for data in request.data['activities']:
             user = request.user
             participation = UserParticipation.objects.get(user=user, project=None)
@@ -95,18 +129,6 @@ class ActivityList(APIView):
             else:
                 brokenSerializers.append(serializer)
         if noErrors:
-            gitid = Users.objects.filter(username=user).values('githubid')
-            bitid=Users.objects.filter(username=user).values('bitbucket')
-            svnid=Users.objects.filter(username=user).values('svn')
-            urls=Users.objects.filter(username=user).values('urls')
-            if gitid[0]['githubid']:
-                git(gitid[0]['githubid'])
-            if bitid[0]['bitbucket']:
-                bit(bitid[0]['bitbucket'])
-            if svnid[0]['svn'] and urls[0]['urls']:
-                svn(svnid[0]['svn'],urls[0]['urls'])
-            if svnid[0]['svn']:
-                pubsvn(svnid[0]['svn'])
             #print git[0]['githubid']
             #search(git[0]['githubid'],acces[0]['accesstoken'])
             return Response(

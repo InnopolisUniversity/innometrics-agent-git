@@ -7,6 +7,8 @@ from activities.models import Activity,Entity,Group
 from measurements.models import Measurement
 from django.contrib.auth.models import User
 from commit.models import CommitType
+from datetime import *
+from threading import *
 import re
 import svn.remote
 from datetime import datetime
@@ -14,6 +16,8 @@ from activities.models import Users
 import json
 import requests
 import tkinter
+#import Tkinter
+#import tkSimpleDialog
 from tkinter import simpledialog
 from pylab import *
 import warnings
@@ -165,12 +169,22 @@ def Day(name):
         return 7
 
 
-
-def git(github):
-    u = Users.objects.get(githubid=github)
+def gitacces():
     root = tkinter.Tk()
     root.withdraw()
     access = simpledialog.askstring("Accesstoken", "Accesstoken")
+    return access
+
+def git(github):
+    u = Users.objects.get(githubid=github)
+    t = Timer(1.0, gitacces)
+    try:
+        access=gitacces()
+    except RuntimeError:
+        pass
+    else:
+        t.start()
+
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -248,11 +262,25 @@ def git(github):
                             value=re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore')).save()
     return HttpResponse("Done")
 
-def bit(github):
+def bitpass():
+    t=Timer(1.0,bitpass)
     root = tkinter.Tk()
-    headers = {'Content-Type': 'application/json'}
+    root.withdraw()
+    try:
+        bitpassword = simpledialog.askstring("Password", "Enter Password", show='*')
+        return bitpassword
+    except:
+        pass
+    else:
+        t.start()
+
+
+def bit(github):
+    #bitpassword=bitpass()
+    root = tkinter.Tk()
     root.withdraw()
     bitpassword = simpledialog.askstring("Password", "Enter Password", show='*')
+    headers = {'Content-Type': 'application/json'}
     A = bitbuckted_project(github,bitpassword)
     u = Users.objects.get(bitbucket=github)
     if Group.objects.filter(name="Commit").exists():
@@ -293,14 +321,14 @@ def bit(github):
     message = []
     count = 0
     for i in A:
-        # if Project.objects.filter(name=i).exists():
-        #   pr = Project.objects.get(name=i)
-        #  UserParticipation(user=u, project=pr).save()
-        # else:
-        p = Project(name=i, description=i, url=i)
-        p.save()
-        pr = Project.objects.get(name=i)
-        UserParticipation(user=u, project=pr)
+        if Project.objects.filter(name=i).exists():
+            pr = Project.objects.get(name=i)
+            UserParticipation(user=u, project=pr).save()
+        else:
+            p = Project(name=i, description=i, url=i)
+            p.save()
+            pr = Project.objects.get(name=i)
+            UserParticipation(user=u, project=pr)
     comm, mess, date, br = bitbuckted_commit(github,bitpassword)
     r = requests.get("https://api.bitbucket.org/2.0/repositories/%s" % github, auth=(github, bitpassword), headers=headers)
     repos = json.loads(r.content)
@@ -339,7 +367,7 @@ def bit(github):
             Measurement(activity=a, type="char", name="BitBucketCommit_Time", value=t).save()
             Measurement(activity=a, type="char", name="BitBucketCommit_branch", value=br[i]).save()
             Measurement(activity=a, type="char", name="BitBucketCommit_message", value=mess[i]).save()
-    return HttpResponse("Done")
+    return HttpResponse(str("Done"))
 
 def svna(github,urls):
     u = Users.objects.get(svn=github)
@@ -364,6 +392,7 @@ def svna(github,urls):
             p.save()
             pr = Project.objects.get(name=info['entry_path'])
             UserParticipation(user=u, project=pr)
+        i=0
         for log in r.log_default():
                 if log[3] == github:
                     if Measurement.objects.filter(value=log[2]).exists():
@@ -375,7 +404,10 @@ def svna(github,urls):
                         Measurement(activity=ac, type="char", name="Type", value="SVN Commit").save()
                         Measurement(activity=ac, type='char', name="User", value=github).save()
                         Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
-                        Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
+                        if log[1]:
+                            Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
+                        else:
+                            Measurement(activity=ac, type="char", name="Scommit_message", value="Nothing").save()
     return HttpResponse("Done")
 
 

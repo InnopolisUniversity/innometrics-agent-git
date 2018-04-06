@@ -25,7 +25,7 @@ class Checking_commits(TestCase):
 
     def create_u(self, user="Hott", email="c@gmail.com", githubid="abca"):
         return Users.objects.create(username=user, email=email, githubid=githubid)
-
+    '''
     def test_commit_view(self):
         w = self.create_user()
         githubid="vicmassy"
@@ -39,7 +39,7 @@ class Checking_commits(TestCase):
         w = self.create_user1()
         githubid="uhrishabh"
         accc="acccvs"
-        response = bit(githubid,"Rishabh!23")
+        response = bit(githubid)
         #self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
 
@@ -58,7 +58,7 @@ class Checking_commits(TestCase):
         # self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
 
-    '''
+    
     def test_commit_wrong_view(self):
         w = self.create_user1()
         githubid="vicmass"
@@ -75,7 +75,7 @@ class Checking_commits(TestCase):
         response = search(githubid,acc)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Done")
-    '''
+    
     def test_user_creation(self):
         w = self.create_user()
         self.assertTrue(isinstance(w, Users))
@@ -110,3 +110,11 @@ class Checking_commits(TestCase):
         response = get_image(github)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, "Please enter correct githubid")
+    '''
+    def test_commit_bitbucket(self):
+        w = self.create_user1()
+        githubid="uhrishabh"
+        accc="acccvs"
+        response = bit(githubid)
+        #self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, str("Done"))
