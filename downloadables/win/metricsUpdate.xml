@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<sharpUpdate>
+	<update appId="MetricsCollectionSystem">
+		<version>1.0.0.8</version>
+		<url>http://innometrics.guru:8000/downloadables/win/CommonModels.dll</url>
+		<fileName>CommonModels.dll</fileName>
+		<md5>D77FD0355B67984FC80DF6F11B786C9C</md5>
+		<description></description>
+		<launchArgs></launchArgs>
+	</update>
+	<update appId="MetricsCollectionSystem">
+		<version>1.0.0.8</version>
+		<url>http://innometrics.guru:8000/downloadables/win/MetricsProcessing.dll</url>
+		<fileName>MetricsProcessing.dll</fileName>
+		<md5>83A291E695F93FACD7C1224A71669890</md5>
+		<description></description>
+		<launchArgs></launchArgs>
+	</update>
+	<update appId="MetricsCollectionSystem">
+		<version>1.0.0.8</version>
+		<url>http://innometrics.guru:8000/downloadables/win/Transmission.dll</url>
+		<fileName>Transmission.dll</fileName>
+		<md5>82E1A293F69FC28C19D9327E2D5913D0</md5>
+		<description></description>
+		<launchArgs></launchArgs>
+	</update>
+	<update appId="MetricsCollectionSystem">
+		<version>1.0.0.8</version>
+		<url>http://innometrics.guru:8000/downloadables/win/Update.dll</url>
+		<fileName>Update.dll</fileName>
+		<md5>887B5E4EA3B4DCFA7F9B70730C8B3C42</md5>
+		<description></description>
+		<launchArgs></launchArgs>
+	</update>
+	<update appId="MetricsCollectionSystem">
+		<version>1.0.0.8</version>
+		<url>http://innometrics.guru:8000/downloadables/win/WindowsMetrics.dll</url>
+		<fileName>WindowsMetrics.dll</fileName>
+		<md5>7FABDDFCF96DDD0CD36D633CAD1018C5</md5>
+		<description></description>
+		<launchArgs></launchArgs>
+	</update>	
+
+  
+  
+  
+
+	<update appId="MetricsCollectionSystem">
+		<version>1.0.0.8</version>
+		<url>http://innometrics.guru:8000/downloadables/win/MetricsCollectorApplication.exe</url>
+		<fileName>MetricsCollectorApplication.exe</fileName>
+		<md5>80124541EAB5815CF8653BC47522DC4B</md5>
+		<description></description>
+		<launchArgs></launchArgs>
+	</update>
+	<update appId="MetricsCollectionSystem">
+		<version>1.0.0.8</version>
+		<url>http://innometrics.guru:8000/downloadables/win/MetricsSenderApplication.exe</url>
+		<fileName>MetricsSenderApplication.exe</fileName>
+		<md5>C413904E0AACF68B72B2D1023B228202</md5>
+		<description></description>
+		<launchArgs></launchArgs>
+	</update>
+</sharpUpdate>
