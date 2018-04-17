@@ -1,6 +1,4 @@
 import os
-
-<<<<<<< HEAD
 from django import forms
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.forms import UserCreationForm
@@ -56,23 +54,6 @@ class CustomLoginView(LoginView):
             context['anchor'] = 'login'
         return context
 
-=======
-from activities.models import Users
-from django.shortcuts import render
-from django.http import HttpResponse, Http404
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import tkinter
-from tkinter import simpledialog
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, generics, permissions
-from commit.views import git,bit,svna,pubsvn
-from activities.models import Activity, Entity
-from activities.serializers import ActivitySerializer, UserSerializer, EntitySerializer
-from projects.models import UserParticipation
-import datetime
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
-
 class DownloadList(APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -95,31 +76,19 @@ class DownloadList(APIView):
 
 class UserList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-<<<<<<< HEAD
     queryset = users.objects.all()
-=======
-    queryset = Users.objects.all()
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     serializer_class = UserSerializer
 
 
 class UserDetail(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-<<<<<<< HEAD
     queryset = users.objects.all()
-=======
-    queryset = Users.objects.all()
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     serializer_class = UserSerializer
 
 
 class CreateUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
-<<<<<<< HEAD
     model = users
-=======
-    model = Users
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     serializer_class = UserSerializer
 
 
@@ -150,7 +119,6 @@ class ActivityList(APIView):
         noErrors = True
         serializers = []
         brokenSerializers = []
-<<<<<<< HEAD
         usr = users.objects.filter(username=request.user).values('time')
         now = datetime.datetime.now().replace(tzinfo=None)
         if usr[0]['time']:
@@ -161,25 +129,12 @@ class ActivityList(APIView):
                 bitid = users.objects.filter(username=request.user).values('bitbucket')
                 svnid = users.objects.filter(username=request.user).values('svn')
                 urls = users.objects.filter(username=request.user).values('urls')
-=======
-        usr=Users.objects.filter(username=request.user).values('time')
-        now = datetime.datetime.now().replace(tzinfo=None)
-        if usr[0]['time']:
-            c=usr[0]['time'].replace(tzinfo=None) - datetime.datetime.now().replace(tzinfo=None)
-            diff=divmod(c.days * 86400 + c.seconds, 60)
-            if diff[0]>60:
-                gitid = Users.objects.filter(username=request.user).values('githubid')
-                bitid = Users.objects.filter(username=request.user).values('bitbucket')
-                svnid = Users.objects.filter(username=request.user).values('svn')
-                urls = Users.objects.filter(username=request.user).values('urls')
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
                 if gitid[0]['githubid']:
                     git(gitid[0]['githubid'])
                 if bitid[0]['bitbucket']:
                     bit(bitid[0]['bitbucket'])
                 if svnid[0]['svn'] and urls[0]['urls']:
                     svna(svnid[0]['svn'], urls[0]['urls'])
-<<<<<<< HEAD
                 else:
                     pubsvn(svnid[0]['svn'])
                 users.objects.filter(username=request.user).update(time=now)
@@ -189,28 +144,13 @@ class ActivityList(APIView):
             bitid = users.objects.filter(username=request.user).values('bitbucket')
             svnid = users.objects.filter(username=request.user).values('svn')
             urls = users.objects.filter(username=request.user).values('urls')
-=======
-                if svnid[0]['svn']:
-                    pubsvn(svnid[0]['svn'])
-                Users.objects.filter(username=request.user).update(time=now)
-        else:
-            Users.objects.filter(username=request.user).update(time=now)
-            gitid = Users.objects.filter(username=request.user).values('githubid')
-            bitid = Users.objects.filter(username=request.user).values('bitbucket')
-            svnid = Users.objects.filter(username=request.user).values('svn')
-            urls = Users.objects.filter(username=request.user).values('urls')
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             if gitid[0]['githubid']:
                 git(gitid[0]['githubid'])
             if bitid[0]['bitbucket']:
                 bit(bitid[0]['bitbucket'])
             if svnid[0]['svn'] and urls[0]['urls']:
                 svna(svnid[0]['svn'], urls[0]['urls'])
-<<<<<<< HEAD
             else:
-=======
-            if svnid[0]['svn']:
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
                 pubsvn(svnid[0]['svn'])
         for data in request.data['activities']:
             user = request.user
@@ -220,10 +160,6 @@ class ActivityList(APIView):
             data['participation'] = participation.id
             data['entity'] = entity.id
             serializer = ActivitySerializer(data=data)
-<<<<<<< HEAD
-=======
-            #print user
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             noErrors = noErrors and serializer.is_valid()
             if serializer.is_valid():
                 serializer.save()
@@ -231,11 +167,6 @@ class ActivityList(APIView):
             else:
                 brokenSerializers.append(serializer)
         if noErrors:
-<<<<<<< HEAD
-=======
-            #print git[0]['githubid']
-            #search(git[0]['githubid'],acces[0]['accesstoken'])
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             return Response(
                 {'activities': serializers},
                 status=status.HTTP_201_CREATED

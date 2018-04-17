@@ -1,11 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-<<<<<<< HEAD
 from activities.models import Activity, Entity,users
-=======
-from activities.models import Activity, Entity
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 from measurements.models import Measurement
 from measurements.serializers import MeasurementSaveSerializer
 from projects.models import UserParticipation
@@ -15,11 +11,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-<<<<<<< HEAD
         model = users
-=======
-        model = get_user_model()
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
         fields = ('id', 'username', 'password', 'email','githubid','bitbucket','svn','urls')
 
     def create(self, validated_data):
@@ -27,13 +19,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             githubid=validated_data['githubid'],
-<<<<<<< HEAD
             bitbucket=validated_data['bitbucket'],
-=======
-            #accesstoken=validated_data['accesstoken'],
-            bitbucket=validated_data['bitbucket'],
-#            passwordbit=validated_data['passwordbit'],
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             svn=validated_data['svn'],
             urls=validated_data['urls']
         )
@@ -55,11 +41,8 @@ class ActivitySerializer(serializers.ModelSerializer):
         measurements_data = validated_data.pop('measurements')
         activity = Activity.objects.create(**validated_data)
         for measurement_data in measurements_data:
-<<<<<<< HEAD
             max_length = Measurement._meta.get_field('value').max_length
             measurement_data['value'] = measurement_data['value'][:max_length]
-=======
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             Measurement.objects.create(activity=activity, **measurement_data)
         return activity
 

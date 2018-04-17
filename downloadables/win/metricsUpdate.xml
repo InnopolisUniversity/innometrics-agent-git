@@ -2,75 +2,105 @@
 <sharpUpdate>
 	<update appId="MetricsCollectionSystem">
 <<<<<<< HEAD
+<<<<<<< HEAD
 		<version>1.0.0.8</version>
 		<url>http://innometrics.guru:8000/downloadables/win/CommonModels.dll</url>
 		<fileName>CommonModels.dll</fileName>
 		<md5>D77FD0355B67984FC80DF6F11B786C9C</md5>
 =======
+=======
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<version>1.0.0.6</version>
 		<url>http://innometrics.guru:8000/downloadables/win/CommonModels.dll</url>
 		<fileName>CommonModels.dll</fileName>
 		<md5>9718A6EB9001291734EB395C5178E17F</md5>
+<<<<<<< HEAD
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
+=======
 >>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<description></description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="MetricsCollectionSystem">
+<<<<<<< HEAD
 <<<<<<< HEAD
 		<version>1.0.0.8</version>
 		<url>http://innometrics.guru:8000/downloadables/win/MetricsProcessing.dll</url>
 		<fileName>MetricsProcessing.dll</fileName>
 		<md5>83A291E695F93FACD7C1224A71669890</md5>
 =======
+=======
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<version>1.0.0.6</version>
 		<url>http://innometrics.guru:8000/downloadables/win/MetricsProcessing.dll</url>
 		<fileName>MetricsProcessing.dll</fileName>
 		<md5>6731DD3B4D0AE5378E13EBD620AC8047</md5>
+<<<<<<< HEAD
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
+=======
 >>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<description></description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="MetricsCollectionSystem">
+<<<<<<< HEAD
 <<<<<<< HEAD
 		<version>1.0.0.8</version>
 		<url>http://innometrics.guru:8000/downloadables/win/Transmission.dll</url>
 		<fileName>Transmission.dll</fileName>
 		<md5>82E1A293F69FC28C19D9327E2D5913D0</md5>
 =======
+=======
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<version>1.0.0.6</version>
 		<url>http://innometrics.guru:8000/downloadables/win/Transmission.dll</url>
 		<fileName>Transmission.dll</fileName>
 		<md5>3F903BEBF248BA0AE7173250C48463B9</md5>
+<<<<<<< HEAD
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
+=======
 >>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<description></description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="MetricsCollectionSystem">
+<<<<<<< HEAD
 <<<<<<< HEAD
 		<version>1.0.0.8</version>
 		<url>http://innometrics.guru:8000/downloadables/win/Update.dll</url>
 		<fileName>Update.dll</fileName>
 		<md5>887B5E4EA3B4DCFA7F9B70730C8B3C42</md5>
 =======
+=======
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<version>1.0.0.6</version>
 		<url>http://innometrics.guru:8000/downloadables/win/Update.dll</url>
 		<fileName>Update.dll</fileName>
 		<md5>BC53C280306ADF9CB1EB373A768780B6</md5>
+<<<<<<< HEAD
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
+=======
 >>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<description></description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="MetricsCollectionSystem">
 <<<<<<< HEAD
+<<<<<<< HEAD
 		<version>1.0.0.8</version>
 		<url>http://innometrics.guru:8000/downloadables/win/WindowsMetrics.dll</url>
 		<fileName>WindowsMetrics.dll</fileName>
 		<md5>7FABDDFCF96DDD0CD36D633CAD1018C5</md5>
 =======
+=======
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<version>1.0.0.6</version>
 		<url>http://innometrics.guru:8000/downloadables/win/WindowsMetrics.dll</url>
 		<fileName>WindowsMetrics.dll</fileName>
 		<md5>DC0FAC40FB968DCA9A04C2AB09B941A3</md5>
+<<<<<<< HEAD
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
+=======
 >>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 		<description></description>
 		<launchArgs></launchArgs>
@@ -82,7 +112,11 @@
 
 	<update appId="MetricsCollectionSystem">
 <<<<<<< HEAD
+<<<<<<< HEAD
 		<version>1.0.0.8</version>
+=======
+		<version>1.0.0.6</version>
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 =======
 		<version>1.0.0.6</version>
 >>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
@@ -94,7 +128,11 @@
 	</update>
 	<update appId="MetricsCollectionSystem">
 <<<<<<< HEAD
+<<<<<<< HEAD
 		<version>1.0.0.8</version>
+=======
+		<version>1.0.0.6</version>
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 =======
 		<version>1.0.0.6</version>
 >>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab

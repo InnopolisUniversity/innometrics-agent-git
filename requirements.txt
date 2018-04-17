@@ -1,16 +1,9 @@
-<<<<<<< HEAD
 Django==1.11
-=======
-Django>=1.10.2
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 psycopg2>=2.6.2
 djangorestframework>=3.5.3
 dj-database-url
 gunicorn
 coreapi
 django-dash
-<<<<<<< HEAD
 django-webpack-loader
 python-dateutil
-=======
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab

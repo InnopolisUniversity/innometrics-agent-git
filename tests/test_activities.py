@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from unittest import skip
 
 from django.contrib.auth.models import User
@@ -11,19 +10,6 @@ from measurements.models import Measurement
 
 
 @skip("Fix according to new schema")
-=======
-from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-
-from activities.models import Activity
-from activities.views import ActivityList
-from measurements.models import Measurement
-
-from activities.serializers import ActivitySerializer
-
-
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 class ActivityTestCase(TestCase):
     def setUp(self):
         User.objects.create_user('testingUser')

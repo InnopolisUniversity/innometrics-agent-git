@@ -12,11 +12,7 @@ from threading import *
 import re
 import svn.remote
 from datetime import datetime
-<<<<<<< HEAD
 from activities.models import users
-=======
-from activities.models import Users
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 import json
 import requests
 import tkinter
@@ -173,30 +169,12 @@ def Day(name):
         return 7
 
 
-<<<<<<< HEAD
+
 def git(github):
     u = users.objects.get(githubid=github)
     root = tkinter.Tk()
     root.withdraw()
     access = simpledialog.askstring("Accesstoken", "Accesstoken")
-=======
-def gitacces():
-    root = tkinter.Tk()
-    root.withdraw()
-    access = simpledialog.askstring("Accesstoken", "Accesstoken")
-    return access
-
-def git(github):
-    u = Users.objects.get(githubid=github)
-    t = Timer(1.0, gitacces)
-    try:
-        access=gitacces()
-    except RuntimeError:
-        pass
-    else:
-        t.start()
-
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -224,11 +202,7 @@ def git(github):
             pr = Project.objects.get(name=repo['name'])
             UserParticipation(user=u, project=pr).save()
         else:
-<<<<<<< HEAD
             p = Project(name=repo['name'], description=repo['name'])
-=======
-            p = Project(name=repo['name'], description=repo['name'], url=repo['url'])
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             p.save()
             pr = Project.objects.get(name=repo['name'])
             UserParticipation(user=u, project=pr)
@@ -278,35 +252,14 @@ def git(github):
                             value=re.sub('\n', ' ', r[i]['commit']['message']).encode('utf-8', 'ignore')).save()
     return HttpResponse("Done")
 
-<<<<<<< HEAD
-def bit(github):
-=======
-def bitpass():
-    t=Timer(1.0,bitpass)
-    root = tkinter.Tk()
-    root.withdraw()
-    try:
-        bitpassword = simpledialog.askstring("Password", "Enter Password", show='*')
-        return bitpassword
-    except:
-        pass
-    else:
-        t.start()
-
 
 def bit(github):
-    #bitpassword=bitpass()
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     root = tkinter.Tk()
     root.withdraw()
     bitpassword = simpledialog.askstring("Password", "Enter Password", show='*')
     headers = {'Content-Type': 'application/json'}
     A = bitbuckted_project(github,bitpassword)
-<<<<<<< HEAD
     u = users.objects.get(bitbucket=github)
-=======
-    u = Users.objects.get(bitbucket=github)
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -349,11 +302,7 @@ def bit(github):
             pr = Project.objects.get(name=i)
             UserParticipation(user=u, project=pr).save()
         else:
-<<<<<<< HEAD
             p = Project(name=i, description=i)
-=======
-            p = Project(name=i, description=i, url=i)
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             p.save()
             pr = Project.objects.get(name=i)
             UserParticipation(user=u, project=pr)
@@ -398,11 +347,7 @@ def bit(github):
     return HttpResponse(str("Done"))
 
 def svna(github,urls):
-<<<<<<< HEAD
     u = users.objects.get(svn=github)
-=======
-    u = Users.objects.get(svn=github)
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -414,10 +359,6 @@ def svna(github,urls):
         Entity(name="Commit", group=g).save()
         en = Entity.objects.get(name="Commit")
     for url in urls.split(','):
-<<<<<<< HEAD
-        print(url)
-=======
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
         r = svn.remote.RemoteClient(url)
         info=r.info()
         if Project.objects.filter(name=info['entry_path']).exists():
@@ -430,7 +371,6 @@ def svna(github,urls):
             UserParticipation(user=u, project=pr)
         i=0
         for log in r.log_default():
-<<<<<<< HEAD
             if log[3] == github:
                 if Measurement.objects.filter(value=log[1]).exists():
                     continue
@@ -445,31 +385,11 @@ def svna(github,urls):
                         Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
                     else:
                         Measurement(activity=ac, type="char", name="Scommit_message", value="Nothing").save()
-=======
-                if log[3] == github:
-                    if Measurement.objects.filter(value=log[2]).exists():
-                        continue
-                    else:
-                        i = i + 1
-                        Activity(comments="SVN commit " + str(i) + " " + str(info['entry_path']), entity=en).save()
-                        ac = Activity.objects.get(comments="SVN commit " + str(i) + " " + str(info['entry_path']))
-                        Measurement(activity=ac, type="char", name="Type", value="SVN Commit").save()
-                        Measurement(activity=ac, type='char', name="User", value=github).save()
-                        Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
-                        if log[1]:
-                            Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
-                        else:
-                            Measurement(activity=ac, type="char", name="Scommit_message", value="Nothing").save()
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     return HttpResponse("Done")
 
 
 def pubsvn(github):
-<<<<<<< HEAD
     u = users.objects.get(svn=github)
-=======
-    u = Users.objects.get(svn=github)
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
     if Group.objects.filter(name="Commit").exists():
         g = Group.objects.get(name="Commit")
     else:
@@ -488,11 +408,7 @@ def pubsvn(github):
             pr = Project.objects.get(name=filename)
             UserParticipation(user=u, project=pr).save()
         else:
-<<<<<<< HEAD
             p = Project(name=filename, description=filename)
-=======
-            p = Project(name=filename, description=filename, url='http://svn.apache.org/repos/asf/' + filename)
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
             p.save()
             pr = Project.objects.get(name=filename)
             UserParticipation(user=u, project=pr)
@@ -512,14 +428,10 @@ def pubsvn(github):
                             Measurement(activity=ac, type="char", name="Type", value="SVN Commit").save()
                             Measurement(activity=ac, type='char', name="User", value=github).save()
                             Measurement(activity=ac, type="char", name="Scommit_ID", value=log[2]).save()
-<<<<<<< HEAD
                             if log[1]:
                                 Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
                             else:
                                 Measurement(activity=ac, type="char", name="Scommit_message", value="Nothing").save()
-    return HttpResponse("Done")
-=======
-                            Measurement(activity=ac, type="char", name="Scommit_message", value=log[1]).save()
     return HttpResponse("Done")
 '''
 def search(github):
@@ -882,52 +794,6 @@ def search(github):
 '''
          #   return HttpResponse("Enter Github ID")
 
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
-
 def chart(request):
     return render(request, 'commit/chart.html')
 
-
-def get_image(gitid):
-    #gitid = request.POST.get('q', '')
-<<<<<<< HEAD
-    if users.objects.filter(githubid=gitid).exists():
-        i=users.objects.get(githubid=gitid)
-=======
-    if Users.objects.filter(githubid=gitid).exists():
-        i=Users.objects.get(githubid=gitid)
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
-   #for i in range(1, len(number) + 1):
-        user = CommitType.objects.filter(user=i).values("Adap")
-        user = list(user)
-        user1 = user[0]['Adap']
-        user = CommitType.objects.filter(user=i).values("Perfect")
-        user = list(user)
-        user2 = user[0]['Perfect']
-        user = CommitType.objects.filter(user=i).values("cor")
-        user = list(user)
-        user3 = user[0]['cor']
-        user = CommitType.objects.filter(user=i).values("none")
-        user = list(user)
-        user4 = user[0]['none']
-        l = ["Adaptive","Prefective", "Corrective", "None"]
-        values = [user1, user2, user3, user4]
-        colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
-        fig = plt.figure()
-    # Plot
-        def make_autopct(values):
-            def my_autopct(pct):
-                total = sum(values)
-                val = int(round(pct * total / 100.0))
-                return '{p:.2f}%  ({v:d})'.format(p=pct, v=val)
-            return my_autopct
-        plt.pie(values, labels=l, autopct=make_autopct(values))
-        plt.axis('equal')
-<<<<<<< HEAD
-=======
-    #plt.show()
-        #fig.savefig("Pie chart/"+gitid+".png", bbox_inches='tight')
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
-        return HttpResponse("Pie chart is ready")
-    else:
-        return HttpResponse("Please enter correct githubid")

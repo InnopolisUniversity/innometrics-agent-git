@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -109,8 +108,3 @@ class CompositeCurrentValue(TestCase):
 
         result = retrieve_current_composite_metric_value(m_comp, self.part)
         self.assertEqual(result, (248, 246))
-=======
-from django.test import TestCase
-
-# Create your tests here.
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab

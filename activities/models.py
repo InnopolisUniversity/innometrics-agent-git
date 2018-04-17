@@ -11,7 +11,6 @@ class Group(models.Model):
     name = models.TextField(max_length=150, blank=True)
     participation = models.ForeignKey(UserParticipation, blank=True, null=True)
 
-<<<<<<< HEAD
     def __str__(self):
         return self.name
 
@@ -24,32 +23,17 @@ class users(AbstractUser):
 
     class Meta:
         db_table = 'auth_user'
-=======
-class Users(AbstractUser):
-    githubid = models.CharField(max_length=30, blank=True,null=True)
-    #accesstoken=models.CharField(max_length=200,blank=True,null=True)
-    bitbucket = models.CharField(max_length=100,blank=True,null=True)
-    #passwordbit = models.CharField(max_length=100,blank=True,null=True)
-    svn = models.CharField(max_length=100,blank=True,null=True)
-    urls=models.CharField(max_length=10000,blank=True,null=True)
-    time=models.DateTimeField(null=True)
-    #REQUIRED_FIELDS=['githubid']
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 
 class Entity(models.Model):
     name = models.TextField(max_length=120, blank=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
 
-<<<<<<< HEAD
     class Meta:
         verbose_name = 'Entity'
         verbose_name_plural = 'Entities'
 
     def __str__(self):
         return self.name
-
-=======
->>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 
 class Activity(models.Model):
     comments = models.CharField(max_length=255, blank=True)
