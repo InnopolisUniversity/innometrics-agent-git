@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+<<<<<<< HEAD
 from rest_framework.views import APIView
 
 from measurements.models import Measurement
@@ -26,12 +27,29 @@ def filter_measurements(request, serializer_class, personal=True):
     serializer = serializer_class(measurements, many=True)
     resp = {'measurements': serializer.data}
     return JsonResponse(resp)
+=======
+from measurements.models import Measurement
+from measurements.serializers import MeasurementSerializer
+
+from rest_framework.views import APIView
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
 
 
 class MeasurementsList(APIView):
     """
+<<<<<<< HEAD
     List filtered measurements
     """
 
     def get(self, request, format=None):
         return filter_measurements(request, MeasurementSerializer)
+=======
+    List all measurements
+    """
+
+    def get(self, request, format=None):
+        measurements = Measurement.objects.filter(activity__participation__user=request.user.id)
+        serializer = MeasurementSerializer(measurements, many=True)
+        resp = {'measurements': (serializer.data)}
+        return JsonResponse(resp)
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from django.http import JsonResponse, Http404, HttpResponseForbidden
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
@@ -100,3 +101,8 @@ class UserProjectMetrics(APIView):
             return JsonResponse({}, status=status.HTTP_200_OK)
 
         return Http404()
+=======
+from django.shortcuts import render
+
+# Create your views here.
+>>>>>>> b08e6a3e8b2c2dd9bc6e05534b8e9593d0bb7dab
