@@ -14,16 +14,6 @@ class Group(models.Model):
     def __str__(self):
         return self.name
 
-class users(AbstractUser):
-    githubid = models.CharField(max_length=30, blank=True,null=True)
-    bitbucket = models.CharField(max_length=100,blank=True,null=True)
-    svn = models.CharField(max_length=100,blank=True,null=True)
-    urls=models.CharField(max_length=10000,blank=True,null=True)
-    time=models.DateTimeField(null=True)
-
-    class Meta:
-        db_table = 'auth_user'
-
 class Entity(models.Model):
     name = models.TextField(max_length=120, blank=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)

@@ -1,6 +1,6 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import User
 
 
 class Project(models.Model):
@@ -12,7 +12,7 @@ class Project(models.Model):
 
 
 class UserParticipation(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True, related_name='participations')
 
     def __str__(self):

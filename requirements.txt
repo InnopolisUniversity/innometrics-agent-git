@@ -7,3 +7,4 @@ coreapi
 django-dash
 django-webpack-loader
 python-dateutil
+svn==0.3.40

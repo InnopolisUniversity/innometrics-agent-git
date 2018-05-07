@@ -13,16 +13,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from commit.views import git,bit,svna,pubsvn
 import datetime
-from activities.models import Activity, Entity,users
+from commit.models import users
+from activities.models import Activity, Entity
 from activities.serializers import ActivitySerializer, UserSerializer
 from projects.models import UserParticipation
+from django.contrib.auth.models import User
 
 
 class UserCreateForm(UserCreationForm):
     email = forms.EmailField(required=True)
 
     class Meta:
-        model = users
+        model = User
         fields = ("username", "email", "password1", "password2")
 
     def save(self, commit=True):
@@ -76,19 +78,19 @@ class DownloadList(APIView):
 
 class UserList(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    queryset = users.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class UserDetail(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    queryset = users.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class CreateUserView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
-    model = users
+    model = User
     serializer_class = UserSerializer
 
 
@@ -119,39 +121,6 @@ class ActivityList(APIView):
         noErrors = True
         serializers = []
         brokenSerializers = []
-        usr = users.objects.filter(username=request.user).values('time')
-        now = datetime.datetime.now().replace(tzinfo=None)
-        if usr[0]['time']:
-            c = usr[0]['time'].replace(tzinfo=None) - datetime.datetime.now().replace(tzinfo=None)
-            diff = divmod(c.days * 86400 + c.seconds, 60)
-            if diff[0] > 60:
-                gitid = users.objects.filter(username=request.user).values('githubid')
-                bitid = users.objects.filter(username=request.user).values('bitbucket')
-                svnid = users.objects.filter(username=request.user).values('svn')
-                urls = users.objects.filter(username=request.user).values('urls')
-                if gitid[0]['githubid']:
-                    git(gitid[0]['githubid'])
-                if bitid[0]['bitbucket']:
-                    bit(bitid[0]['bitbucket'])
-                if svnid[0]['svn'] and urls[0]['urls']:
-                    svna(svnid[0]['svn'], urls[0]['urls'])
-                else:
-                    pubsvn(svnid[0]['svn'])
-                users.objects.filter(username=request.user).update(time=now)
-        else:
-            users.objects.filter(username=request.user).update(time=now)
-            gitid = users.objects.filter(username=request.user).values('githubid')
-            bitid = users.objects.filter(username=request.user).values('bitbucket')
-            svnid = users.objects.filter(username=request.user).values('svn')
-            urls = users.objects.filter(username=request.user).values('urls')
-            if gitid[0]['githubid']:
-                git(gitid[0]['githubid'])
-            if bitid[0]['bitbucket']:
-                bit(bitid[0]['bitbucket'])
-            if svnid[0]['svn'] and urls[0]['urls']:
-                svna(svnid[0]['svn'], urls[0]['urls'])
-            else:
-                pubsvn(svnid[0]['svn'])
         for data in request.data['activities']:
             user = request.user
             participation = UserParticipation.objects.get(user=user, project=None)
@@ -166,6 +135,40 @@ class ActivityList(APIView):
                 serializers.append(serializer.data)
             else:
                 brokenSerializers.append(serializer)
+        us = User.objects.get(username=request.user)
+        usr = users.objects.filter(user=us).values('time')
+        now = datetime.datetime.now().replace(tzinfo=None)
+        if usr[0]['time']:
+            c = datetime.datetime.now().replace(tzinfo=None) - usr[0]['time'].replace(tzinfo=None)
+            diff = divmod(c.days * 86400 + c.seconds, 60)
+            if diff[0] > 60:
+                gitid = users.objects.filter(user=us).values('githubid')
+                bitid = users.objects.filter(user=us).values('bitbucket')
+                svnid = users.objects.filter(user=us).values('svn')
+                urls = users.objects.filter(user=us).values('urls')
+                if gitid[0]['githubid']:
+                    git(gitid[0]['githubid'])
+                if bitid[0]['bitbucket']:
+                    bit(bitid[0]['bitbucket'])
+                if svnid[0]['svn'] and urls[0]['urls']:
+                    svna(svnid[0]['svn'], urls[0]['urls'])
+                elif svnid[0]['svn']:
+                    pubsvn(svnid[0]['svn'])
+                users.objects.filter(user=us).update(time=now)
+        else:
+            users.objects.filter(user=us).update(time=now)
+            gitid = users.objects.filter(user=us).values('githubid')
+            bitid = users.objects.filter(user=us).values('bitbucket')
+            svnid = users.objects.filter(user=us).values('svn')
+            urls = users.objects.filter(user=us).values('urls')
+            if gitid[0]['githubid']:
+                git(gitid[0]['githubid'])
+            if bitid[0]['bitbucket']:
+                bit(bitid[0]['bitbucket'])
+            if svnid[0]['svn'] and urls[0]['urls']:
+                svna(svnid[0]['svn'], urls[0]['urls'])
+            else:
+                pubsvn(svnid[0]['svn'])
         if noErrors:
             return Response(
                 {'activities': serializers},
